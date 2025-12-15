@@ -10,6 +10,7 @@ import { SignOutButton } from '@/components/auth/sign-out-button';
 import { NovoAgendamento } from '@/components/dashboard/novo-agendamento';
 import { UploadArquivo } from '@/components/dashboard/upload-arquivo';
 import { AcoesAgendamento } from '@/components/dashboard/acoes-agendamento';
+import { CadastroFilho } from '@/components/dashboard/cadastro-filho';
 
 const formatDate = (dateString: string) => {
     if (!dateString) return 'Data a definir';
@@ -95,11 +96,17 @@ export default async function DashboardPage() {
            {isAdmin && (
             <TabsContent value="admin">
               <Card className="border-blue-200 bg-blue-50/30">
-                  <CardHeader>
-                      <CardTitle className="text-blue-800 flex items-center gap-2">
-                        <User className="h-6 w-6"/> Gestão de Atendimentos
-                      </CardTitle>
-                      <CardDescription>Visualize todos os pedidos (Internos e Públicos).</CardDescription>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                      <div>
+                        <CardTitle className="text-blue-800 flex items-center gap-2">
+                            <User className="h-6 w-6"/> Gestão de Atendimentos
+                        </CardTitle>
+                        <CardDescription>Visualize pedidos e cadastre novos filhos.</CardDescription>
+                      </div>
+                      
+                      {/* BOTÃO DE CADASTRO AQUI */}
+                      <CadastroFilho />
+
                   </CardHeader>
                   <CardContent>
                     {todosAgendamentos.length === 0 ? (

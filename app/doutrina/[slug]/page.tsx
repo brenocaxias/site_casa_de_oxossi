@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Share2, Calendar, Sparkles } from "lucide-react";
+import { Share2, Calendar, Sparkles } from "lucide-react";
+// 1. Importamos o novo botão inteligente
+import { BotaoVoltar } from "@/components/ui/botao-voltar"; 
 
 // --- BANCO DE DADOS COMPLETO ---
 const dbArtigos: Record<string, any> = {
@@ -44,7 +45,7 @@ const dbArtigos: Record<string, any> = {
       <p>"Ko si ewe, ko si Orixá" (Sem folha, não há Orixá). Ossain é o mágico das ervas. Nenhuma cerimônia é feita sem a sua permissão, pois o Axé está nas plantas.</p>
     `
   },
-  "obaluaie": {
+  "obaluaye": {
     titulo: "Obaluaiê: Senhor da Terra",
     subtitulo: "Orixá da cura, da terra e da transformação.",
     cor: "bg-stone-800",
@@ -145,10 +146,11 @@ const dbArtigos: Record<string, any> = {
     `
   },
   
-    "pretos-velhos": {
+  // --- UMBANDA ---
+  "pretos-velhos": {
     titulo: "Pretos Velhos: A Sabedoria",
     subtitulo: "Adorei as Almas! A humildade, a paciência e a caridade ancestral.",
-    cor: "bg-slate-800", // Preto/Branco (Simbolizado pelo cinza escuro)
+    cor: "bg-slate-800",
     texto: `
       <p>Os Pretos Velhos são entidades de luz que se apresentam como anciãos africanos. Eles representam a sabedoria adquirida através do sofrimento e da experiência. São os psicólogos da Umbanda, mestres na arte de ouvir e aconselhar.</p>
       <h3>O Poder da Cura</h3>
@@ -158,7 +160,7 @@ const dbArtigos: Record<string, any> = {
   "caboclos": {
     titulo: "Caboclos: A Força da Mata",
     subtitulo: "Okê Caboclo! A cura através das ervas e a energia viril das florestas.",
-    cor: "bg-green-700", // Verde Mata
+    cor: "bg-green-700",
     texto: `
       <p>Os Caboclos são espíritos de indígenas e mestiços que trabalham na caridade com a vibração de Oxóssi. Eles trazem a energia pura das matas, a vitalidade e a coragem para enfrentar os obstáculos da vida.</p>
       <h3>O Passe e as Ervas</h3>
@@ -168,7 +170,7 @@ const dbArtigos: Record<string, any> = {
   "eres": {
     titulo: "Erês: A Pureza",
     subtitulo: "Oni Beijada! A renovação das energias através da alegria das crianças.",
-    cor: "bg-pink-400", // Rosa (ou Azul claro)
+    cor: "bg-pink-400",
     texto: `
       <p>Não se engane com a brincadeira: os Erês (Crianças) realizam trabalhos seríssimos de descarrego e cura. A alegria é a arma mais poderosa contra a tristeza e a depressão. Eles manipulam energias densas com leveza, transformando o ambiente pesado em luz.</p>
       <p>São sincretizados com São Cosme e Damião e trazem a mensagem de que para evoluir, precisamos manter o coração puro e a capacidade de sorrir diante da vida.</p>
@@ -177,30 +179,19 @@ const dbArtigos: Record<string, any> = {
   "esquerda": {
     titulo: "Esquerda: Os Guardiões",
     subtitulo: "Laroyê! A proteção, a vitalidade e a execução da Lei Divina.",
-    cor: "bg-red-900", // Vermelho e Preto
+    cor: "bg-red-900",
     texto: `
       <p>A Linha de Esquerda (Exus, Pombagiras e Exus-Mirins) não trabalha para o mal. Pelo contrário, eles são os guardiões e os policiais do astral. Eles lidam com as energias mais densas, protegem os terreiros contra ataques e abrem os caminhos para quem merece.</p>
       <h3>Vitalidade e Abertura</h3>
       <p>Trabalham questões materiais, amorosas, profissionais e de proteção. Eles estão mais próximos da nossa vibração humana, por isso agem com rapidez. Ensinam que precisamos ter pé no chão e força para viver no mundo material sem nos perdermos.</p>
     `
   },
-
-  // (Aqui fecha a chave do dbArtigos)
 };
 
-
-
-
-// CORREÇÃO PARA NEXT.JS 15: "params" agora é uma Promise!
 export default async function ArtigoPage({ params }: { params: Promise<{ slug: string }> }) {
-  
-  // 1. Esperamos o Next resolver os parâmetros da URL
   const { slug } = await params; 
-  
-  // 2. Buscamos no nosso "banco"
   const artigo = dbArtigos[slug];
 
-  // 3. Fallback se não achar (com DEBUG para te ajudar a ver o erro)
   if (!artigo) {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-6 bg-slate-50">
@@ -208,23 +199,20 @@ export default async function ArtigoPage({ params }: { params: Promise<{ slug: s
         <p className="text-slate-500">
           O sistema buscou por: <code className="bg-slate-200 px-2 py-1 rounded font-mono text-pink-600">{slug}</code>
         </p>
-        <p className="text-sm text-slate-400">Verifique se o nome no arquivo anterior está igual ao da lista acima.</p>
         <Link href="/doutrina"><Button size="lg">Voltar para a Biblioteca</Button></Link>
       </div>
     );
   }
 
-  // 4. Renderização da Página
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
+      {/* 2. HEADER ATUALIZADO: Usando BotaoVoltar */}
       <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur border-b h-16 flex items-center">
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <Link href="/doutrina">
-            <Button variant="ghost" className="gap-2 pl-0 hover:bg-transparent hover:text-primary transition-colors">
-              <ChevronLeft size={20} /> Voltar
-            </Button>
-          </Link>
+          
+          {/* Aqui está a mágica: em vez de Link, usamos o Botão Inteligente */}
+          <BotaoVoltar />
+
           <div className="flex gap-2">
              <Button variant="outline" size="icon" className="rounded-full">
                 <Share2 size={18} />
