@@ -8,7 +8,6 @@ export async function cadastrarFilho(formData: FormData) {
   const senha = formData.get('senha') as string
 
   // 1. Criar cliente com a Chave Mestra (Service Role)
-  // Isso permite criar usuários sem estar logado como eles
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -20,11 +19,11 @@ export async function cadastrarFilho(formData: FormData) {
     }
   )
 
-  // 2. Criar o Usuário na Autenticação (Email/Senha)
+  // 2. Criar o Usuário na Autenticação
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email: email,
     password: senha,
-    email_confirm: true // Já confirma o email automaticamente
+    email_confirm: true
   })
 
   if (authError) {
@@ -35,13 +34,13 @@ export async function cadastrarFilho(formData: FormData) {
     return { error: 'Erro desconhecido ao criar usuário.' }
   }
 
-  // 3. Criar o Perfil na tabela 'profiles' (Para aparecer o nome "Bem-vindo Fulano")
+  // 3. Criar ou Atualizar o Perfil (UPSERT resolve o erro de duplicação)
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
-    .insert({
+    .upsert({
       id: authData.user.id,
       full_name: nome,
-      role: 'user', // Define como filho (usuário comum)
+      role: 'user',
       email: email
     })
 

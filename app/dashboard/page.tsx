@@ -11,6 +11,7 @@ import { NovoAgendamento } from '@/components/dashboard/novo-agendamento';
 import { UploadArquivo } from '@/components/dashboard/upload-arquivo';
 import { AcoesAgendamento } from '@/components/dashboard/acoes-agendamento';
 import { CadastroFilho } from '@/components/dashboard/cadastro-filho';
+import { BotaoAlterarSenha } from '@/components/dashboard/botao-alterar-senha';
 
 const formatDate = (dateString: string) => {
     if (!dateString) return 'Data a definir';
@@ -74,22 +75,31 @@ export default async function DashboardPage() {
             <span className="text-sm text-slate-500 hidden md:block">
               {perfil?.full_name || user.email} ({isAdmin ? 'Pai de Santo' : 'Filho'})
             </span>
+            
+            <BotaoAlterarSenha />
             <SignOutButton />
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 flex-1">
+      <main className="container mx-auto px-4 py-8 flex-1 overflow-x-hidden">
         <h1 className="text-3xl font-bold text-slate-800 mb-2">Bem-vindo, {perfil?.full_name || 'Filho de Fé'}.</h1>
         <p className="text-slate-600 mb-8">Esta é a secretaria virtual da nossa casa.</p>
 
         <Tabs defaultValue={isAdmin ? "admin" : "arquivos"} className="w-full">
-          <TabsList className="mb-6">
+          
+          <TabsList className="mb-6 w-full h-auto flex flex-wrap justify-center gap-2 bg-slate-100/80 p-2">
             {isAdmin && (
-                <TabsTrigger value="admin" className="text-blue-600 font-bold">Painel do Pai de Santo</TabsTrigger>
+                <TabsTrigger value="admin" className="text-blue-600 font-bold min-w-[120px]">
+                    Painel do Pai de Santo
+                </TabsTrigger>
             )}
-            <TabsTrigger value="arquivos">📂 Arquivos da Casa</TabsTrigger>
-            <TabsTrigger value="agendamentos">📅 Meus Agendamentos</TabsTrigger>
+            <TabsTrigger value="arquivos" className="min-w-[120px]">
+                📂 Arquivos da Casa
+            </TabsTrigger>
+            <TabsTrigger value="agendamentos" className="min-w-[120px]">
+                📅 Meus Agendamentos
+            </TabsTrigger>
           </TabsList>
 
            {/* --- ABA ADMIN --- */}
@@ -104,7 +114,6 @@ export default async function DashboardPage() {
                         <CardDescription>Visualize pedidos e cadastre novos filhos.</CardDescription>
                       </div>
                       
-                      {/* BOTÃO DE CADASTRO AQUI */}
                       <CadastroFilho />
 
                   </CardHeader>
@@ -127,7 +136,7 @@ export default async function DashboardPage() {
                                             )}
                                         </div>
                                         <p className="text-sm text-slate-500">
-                                            {item.tipo_jogo === 'buzios_completo' ? 'Jogo de Búzios Completo' : 'Perguntas Objetivas'} 
+                                            {item.tipo_jogo === 'buzios_completo' ? 'Jogo de Búzios' : 'Consulta'} 
                                             • <span className="font-medium text-slate-700">{formatDate(item.data_agendamento)}</span>
                                         </p>
                                         {item.notas && (
@@ -136,7 +145,6 @@ export default async function DashboardPage() {
                                     </div>
                                     
                                     <div className="flex items-center gap-3">
-                                        {/* Badge de Status */}
                                         <Badge className={
                                             item.status === 'pendente' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 
                                             item.status === 'confirmado' ? 'bg-green-100 text-green-800 border-green-200' :
@@ -145,8 +153,14 @@ export default async function DashboardPage() {
                                             {item.status.toUpperCase()}
                                         </Badge>
 
-                                        {/* --- AQUI ENTRAM OS BOTÕES NOVOS --- */}
-                                        <AcoesAgendamento id={item.id} status={item.status} />
+                                        {/* CORREÇÃO AQUI: Passando o telefone, nome e data para o botão */}
+                                        <AcoesAgendamento 
+                                            id={item.id} 
+                                            status={item.status} 
+                                            telefone={item.cliente_contato}
+                                            nome={item.cliente_nome}
+                                            data={formatDate(item.data_agendamento)}
+                                        />
                                         
                                     </div>
                                 </div>
@@ -158,9 +172,8 @@ export default async function DashboardPage() {
             </TabsContent>
            )}
 
-          {/* --- ABA ARQUIVOS (AGORA REAIS) --- */}
+          {/* --- ABA ARQUIVOS --- */}
           <TabsContent value="arquivos">
-             {/* Cabeçalho da aba de arquivos: Se for Admin, mostra botão de Upload */}
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-slate-700">Material de Estudo e Fotos</h3>
                 {isAdmin && <UploadArquivo />}
@@ -197,14 +210,15 @@ export default async function DashboardPage() {
 
           {/* --- ABA MEUS AGENDAMENTOS --- */}
           <TabsContent value="agendamentos" className="space-y-4">
-            <div className="flex justify-between items-center bg-white p-4 rounded-lg border shadow-sm">
+            
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-lg border shadow-sm">
                 <div>
                     <h3 className="font-bold text-lg">Seus Pedidos</h3>
                     <p className="text-sm text-slate-500">Acompanhe suas solicitações pessoais.</p>
                 </div>
                 <NovoAgendamento userId={user.id} />
             </div>
-            {/* ... Lista igual ao código anterior ... */}
+
             {(!meusAgendamentos || meusAgendamentos.length === 0) ? (
                  <div className="text-center py-10 text-slate-500 border-2 border-dashed rounded-lg bg-slate-50/50">
                     <Calendar className="mx-auto h-10 w-10 mb-3 text-slate-300" />
@@ -215,14 +229,20 @@ export default async function DashboardPage() {
                     {meusAgendamentos.map((item) => (
                         <Card key={item.id} className="border-l-4 border-l-primary">
                             <CardHeader className="pb-2">
-                                <div className="flex justify-between items-start">
+                                <div className="flex flex-col md:flex-row justify-between items-start gap-2">
                                     <div>
                                         <CardTitle className="text-lg">
-                                            {item.tipo_jogo === 'buzios_completo' ? 'Jogo de Búzios Completo' : 'Perguntas Objetivas'}
+                                            {item.tipo_jogo === 'buzios_completo' ? 'Jogo de Búzios' : 'Consulta'}
                                         </CardTitle>
                                         <CardDescription>Solicitado para: {formatDate(item.data_agendamento)}</CardDescription>
                                     </div>
-                                    <Badge className="bg-yellow-100 text-yellow-800">{item.status.toUpperCase()}</Badge>
+                                    <Badge className={
+                                            item.status === 'pendente' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 
+                                            item.status === 'confirmado' ? 'bg-green-100 text-green-800 border-green-200' :
+                                            'bg-red-100 text-red-800 border-red-200'
+                                        }>
+                                        {item.status.toUpperCase()}
+                                    </Badge>
                                 </div>
                             </CardHeader>
                         </Card>

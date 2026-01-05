@@ -1,86 +1,88 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { Button } from "@/components/ui/button";
-import { Check, X, Trash2, Loader2 } from 'lucide-react';
+import { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Check, X, Loader2, MessageCircle } from 'lucide-react'
+import { atualizarStatusAgendamento } from '@/app/actions/atualizar-status-agendamento'
 
 interface AcoesProps {
-    id: string;
-    status: string;
+  id: number
+  status: string
+  telefone?: string
+  nome?: string
+  data?: string
 }
 
-export function AcoesAgendamento({ id, status }: AcoesProps) {
-    const router = useRouter();
-    const [loading, setLoading] = useState(false);
+export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProps) {
+  const [loading, setLoading] = useState(false)
 
-    // Função para mudar o status (Confirmar ou Cancelar)
-    const atualizarStatus = async (novoStatus: string) => {
-        setLoading(true);
-        await supabase
-            .from('agendamentos')
-            .update({ status: novoStatus })
-            .eq('id', id);
-        
-        setLoading(false);
-        router.refresh(); // Atualiza a tela sem recarregar
-    };
+  const handleStatus = async (novoStatus: 'confirmado' | 'cancelado') => {
+    if (loading) return
+    setLoading(true)
 
-    // Função para excluir o agendamento
-    const excluirAgendamento = async () => {
-        const confirmar = window.confirm("Tem certeza que deseja apagar este agendamento?");
-        if (!confirmar) return;
+    try {
+        // 1. Atualiza no Banco
+        await atualizarStatusAgendamento(id, novoStatus)
 
-        setLoading(true);
-        await supabase
-            .from('agendamentos')
-            .delete()
-            .eq('id', id);
+        // 2. Se for confirmado, prepara o WhatsApp
+        if (novoStatus === 'confirmado') {
+            
+            // Verifica se tem telefone
+            if (!telefone) {
+                alert("Agendamento confirmado! (Mas o cliente não cadastrou telefone para contato).")
+                return
+            }
 
-        setLoading(false);
-        router.refresh();
-    };
+            // Limpa o número (remove ( ) - e espaços)
+            let numeroLimpo = telefone.replace(/\D/g, '')
 
-    if (loading) {
-        return <Loader2 className="h-5 w-5 animate-spin text-slate-400" />;
+            // Se o número for curto (ex: 11999999999 - 11 digitos), adiciona o 55 do Brasil
+            if (numeroLimpo.length <= 11) {
+                numeroLimpo = `55${numeroLimpo}`
+            }
+
+            // Cria a mensagem focada em PAGAMENTO/CONFIRMAÇÃO
+            const texto = `Olá ${nome || 'Filho de Fé'}! 🕊️\n\nRecebemos sua solicitação de agendamento para *${data}*.\n\nPara confirmar seu horário, precisamos acertar os detalhes do pagamento.\n\nComo prefere prosseguir?`
+            
+            // Transforma o texto para URL
+            const mensagemCodificada = encodeURIComponent(texto)
+            const linkZap = `https://wa.me/${numeroLimpo}?text=${mensagemCodificada}`
+            
+            // Abre o WhatsApp
+            window.open(linkZap, '_blank')
+        }
+
+    } catch (error) {
+        console.error("Erro:", error)
+        alert("Erro ao atualizar o status.")
+    } finally {
+        setLoading(false)
     }
+  }
 
-    return (
-        <div className="flex items-center gap-2">
-            {/* Se estiver Pendente, mostra botões de Aceitar/Recusar */}
-            {status === 'pendente' && (
-                <>
-                    <Button 
-                        size="sm" 
-                        className="bg-green-600 hover:bg-green-700 text-white h-8 w-8 p-0 rounded-full"
-                        title="Confirmar Agendamento"
-                        onClick={() => atualizarStatus('confirmado')}
-                    >
-                        <Check size={16} />
-                    </Button>
+  if (status !== 'pendente') return null
 
-                    <Button 
-                        size="sm" 
-                        className="bg-red-500 hover:bg-red-600 text-white h-8 w-8 p-0 rounded-full"
-                        title="Recusar/Cancelar"
-                        onClick={() => atualizarStatus('cancelado')}
-                    >
-                        <X size={16} />
-                    </Button>
-                </>
-            )}
-
-            {/* Botão de Excluir (Lixeira) - Sempre visível */}
-            <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-slate-400 hover:text-red-500 hover:bg-red-50 h-8 w-8 p-0 rounded-full"
-                title="Excluir do Histórico"
-                onClick={excluirAgendamento}
-            >
-                <Trash2 size={16} />
-            </Button>
-        </div>
-    );
+  return (
+    <div className="flex gap-2">
+      <Button 
+        size="sm" 
+        className="bg-green-600 hover:bg-green-700 text-white"
+        onClick={() => handleStatus('confirmado')}
+        disabled={loading}
+        title="Aprovar e Ir para WhatsApp"
+      >
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <div className="flex items-center gap-1"><Check className="h-4 w-4" /> <MessageCircle className="h-3 w-3" /></div>}
+      </Button>
+      
+      <Button 
+        size="sm" 
+        variant="destructive"
+        onClick={() => handleStatus('cancelado')}
+        disabled={loading}
+        title="Recusar Pedido"
+      >
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+      </Button>
+    </div>
+  )
 }

@@ -52,7 +52,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
             <Image 
-              src="/logo-header.png" 
+              src="/logo-footer.png" 
               alt="Logo Casa" 
               width={80} 
               height={80} 
@@ -61,7 +61,7 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-2xl font-bold text-primary">Acesso Restrito</CardTitle>
           <CardDescription>
-            Entre com suas credenciais para acessar a Área do Filho ou Painel Administrativo.
+            Entre com suas credenciais para acessar a Área do Filho ou Bàbá.
           </CardDescription>
         </CardHeader>
         
@@ -88,7 +88,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Senha</Label>
-                <Link href="#" className="text-xs text-primary hover:underline">
+                <Link href="/esqueci-senha" className="text-xs text-primary hover:underline">
                   Esqueceu a senha?
                 </Link>
               </div>

@@ -15,20 +15,13 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2, CalendarCheck, User, Smartphone, Sparkles, Clock, FileText, CalendarDays } from 'lucide-react';
+import { Loader2, CalendarCheck, User, Smartphone, Clock, FileText, CalendarDays } from 'lucide-react';
 
 interface AgendamentoProps {
     textoBotao?: string;
     variant?: "default" | "secondary" | "outline" | "ghost" | "link";
     className?: string;
-    // NOVA PROPRIEDADE: Permite definir qual jogo já vem marcado
+    // Mantemos a prop para não quebrar o código anterior, mas não a usamos mais no visual
     jogoPreSelecionado?: "buzios_completo" | "perguntas";
 }
 
@@ -36,7 +29,6 @@ export function AgendamentoPublico({
     textoBotao = "Agendar Horário", 
     variant = "default", 
     className,
-    jogoPreSelecionado 
 }: AgendamentoProps) {
   
   const [open, setOpen] = useState(false);
@@ -50,7 +42,8 @@ export function AgendamentoPublico({
     const formData = new FormData(e.currentTarget);
     
     const agendamento = {
-        tipo_jogo: formData.get('tipo'),
+        // AQUI: Forçamos o tipo para búzios, já que removemos a seleção
+        tipo_jogo: 'buzios_completo',
         data_agendamento: formData.get('data'),
         cliente_nome: formData.get('nome'),
         cliente_contato: formData.get('contato'),
@@ -103,13 +96,13 @@ export function AgendamentoPublico({
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[500px] bg-white text-slate-900 border border-slate-200 shadow-2xl rounded-xl z-[100]">
+      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:max-w-[500px] bg-white text-slate-900 border border-slate-200 shadow-2xl rounded-xl z-[100] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="border-b pb-4 mb-4">
           <DialogTitle className="flex items-center gap-2 text-xl text-slate-800 font-bold">
-             <CalendarDays className="h-6 w-6 text-yellow-600" /> Agendar Consulta
+             <CalendarDays className="h-6 w-6 text-yellow-600" /> Agendar Jogo de Búzios
           </DialogTitle>
           <DialogDescription className="text-slate-500">
-            Preencha seus dados abaixo. É rápido e seguro.
+            Preencha seus dados abaixo para marcar sua consulta.
           </DialogDescription>
         </DialogHeader>
         
@@ -131,34 +124,18 @@ export function AgendamentoPublico({
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="tipo" className="text-slate-700 font-medium">Tipo de Jogo</Label>
-                    <div className="relative">
-                         <div className="absolute left-3 top-3 z-10 text-slate-400 pointer-events-none">
-                            <Sparkles size={16} />
-                         </div>
-                        
-                        {/* AQUI ESTÁ A MÁGICA: defaultValue */}
-                        <Select name="tipo" required defaultValue={jogoPreSelecionado}>
-                            <SelectTrigger className="pl-10 bg-slate-50 border-slate-300 focus:border-yellow-500 text-slate-700">
-                                <SelectValue placeholder="Escolha..." />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white border-slate-200 z-[9999]">
-                                <SelectItem value="buzios_completo">🐚 Búzios (R$ 150)</SelectItem>
-                                <SelectItem value="perguntas">⭐ Perguntas (R$ 80)</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                    </div>
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="data" className="text-slate-700 font-medium">Data Preferida</Label>
-                    <div className="relative">
-                        <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                        <Input id="data" name="data" type="datetime-local" required className="pl-10 bg-slate-50 border-slate-300 focus:border-yellow-500 text-slate-600 text-xs sm:text-sm" />
-                    </div>
+            {/* AQUI: Removido o Grid e o Select de Tipo. Agora a Data ocupa tudo. */}
+            <div className="space-y-2">
+                <Label htmlFor="data" className="text-slate-700 font-medium">Data e Hora Preferida</Label>
+                <div className="relative">
+                    <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Input 
+                        id="data" 
+                        name="data" 
+                        type="datetime-local" 
+                        required 
+                        className="pl-10 bg-slate-50 border-slate-300 focus:border-yellow-500 text-slate-600 w-full" 
+                    />
                 </div>
             </div>
 
