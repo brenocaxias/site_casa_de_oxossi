@@ -3,14 +3,55 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-// ADICIONEI O 'Instagram' NA LISTA DE ÍCONES
-import { Shell, Star, BookOpen, ArrowRight, MapPin, ShieldCheck, User, Flame, Instagram } from "lucide-react";
+// AQUI: Adicionei 'Github' e 'Smartphone' na lista de importações
+import { Shell, Star, BookOpen, ArrowRight, MapPin, ShieldCheck, User, Flame, Instagram, Github, Smartphone } from "lucide-react";
 import { AgendamentoPublico } from "@/components/agendamento-publico";
 
 export default function Home() {
+  
+  // --- AQUI COMEÇA O PULO DO GATO (SEO) ---
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'PlaceOfWorship',
+    name: "Ilè Asé Ègbé L'ajò Odé Igbò",
+    alternateName: "Casa de Oxóssi Piedade",
+    image: 'hhttps://www.egbelajo-odeigbo.com.br/logo-header.png',
+    description: 'Casa de Candomblé e culto aos orixás em Piedade, Rio de Janeiro. Agende Jogo de Búzios e trabalhos espirituais.',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Rua Joaquim Martins, 523',
+      addressLocality: 'Rio de Janeiro',
+      addressRegion: 'RJ',
+      postalCode: '20745-230',
+      addressCountry: 'BR'
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: -22.898314875664973,
+      longitude: -43.314711809718226
+    },
+    url: 'https://www.egbelajo-odeigbo.com.br',
+    telephone: '+5521969690953',
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        opens: '09:00',
+        closes: '20:00'
+      }
+    ]
+  }
+  // --- FIM DA CONFIGURAÇÃO SEO ---
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       
+      {/* INJEÇÃO DO SCRIPT PARA O GOOGLE LER */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* --- CABEÇALHO --- */}
       <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
@@ -124,7 +165,7 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    {/* AQUI: Adicionei o Link no botão Seguir */}
+                    {/* Botão Seguir */}
                     <Link href="https://www.instagram.com/egbelajo_odeigbo/" target="_blank">
                         <Button size="sm" variant="secondary" className="h-7 text-xs bg-white text-purple-600 hover:bg-white/90 font-bold">
                             Seguir
@@ -221,6 +262,30 @@ export default function Home() {
             
             <div className="border-t border-slate-100 pt-8 text-xs text-slate-400">
                 © {new Date().getFullYear()} Ilè Asé Ègbé L'ajò Odé Igbò. Todos os direitos reservados.
+            </div>
+
+            {/* --- CRÉDITOS DO DESENVOLVEDOR --- */}
+            <div className="mt-6 flex flex-col items-center gap-3">
+                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-medium">
+                    Desenvolvido por <span className="text-slate-600 font-bold">Breno Caxias</span>
+                </span>
+                
+                <div className="flex items-center gap-4">
+                    {/* GitHub */}
+                    <Link href="https://github.com/brenocaxias" target="_blank" title="GitHub do Desenvolvedor">
+                        <Github size={18} className="text-slate-400 hover:text-slate-900 hover:scale-110 transition-all duration-300" />
+                    </Link>
+
+                    {/* Instagram */}
+                    <Link href="https://instagram.com/brenocaxias" target="_blank" title="Instagram do Desenvolvedor">
+                        <Instagram size={18} className="text-slate-400 hover:text-pink-600 hover:scale-110 transition-all duration-300" />
+                    </Link>
+
+                    {/* WhatsApp */}
+                    <Link href="https://wa.me/5588994047841" target="_blank" title="Falar com Desenvolvedor">
+                        <Smartphone size={18} className="text-slate-400 hover:text-green-600 hover:scale-110 transition-all duration-300" />
+                    </Link>
+                </div>
             </div>
         </div>
       </footer>

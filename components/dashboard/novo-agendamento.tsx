@@ -37,7 +37,8 @@ export function NovoAgendamento({ userId }: NovoAgendamentoProps) {
         user_id: userId,
         tipo_jogo: 'buzios_completo',
         data_agendamento: formData.get('data'),
-        // CORREÇÃO: Agora salvamos explicitamente o nome e o zap no agendamento
+        // CORREÇÃO CRÍTICA AQUI:
+        // Estamos pegando o que foi digitado e salvando nas colunas de texto
         cliente_nome: formData.get('nome'), 
         cliente_contato: formData.get('contato'),
         notas: formData.get('notas'),
@@ -77,7 +78,7 @@ export function NovoAgendamento({ userId }: NovoAgendamentoProps) {
         
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
             
-            {/* CAMPO NOME */}
+            {/* CAMPO NOME - AGORA OBRIGATÓRIO */}
             <div className="space-y-2">
                 <Label htmlFor="nome" className="text-right">Seu Nome</Label>
                 <div className="relative">
@@ -92,7 +93,7 @@ export function NovoAgendamento({ userId }: NovoAgendamentoProps) {
                 </div>
             </div>
 
-            {/* CAMPO WHATSAPP */}
+            {/* CAMPO WHATSAPP - AGORA OBRIGATÓRIO */}
             <div className="space-y-2">
                 <Label htmlFor="contato" className="text-right">Seu WhatsApp</Label>
                 <div className="relative">

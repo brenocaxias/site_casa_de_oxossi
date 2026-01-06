@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Folder, FileText, Image as ImageIcon, Calendar, Download, Clock, CheckCircle, Smartphone, User, Music } from 'lucide-react';
-import Link from 'next/link';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { NovoAgendamento } from '@/components/dashboard/novo-agendamento';
 import { UploadArquivo } from '@/components/dashboard/upload-arquivo';
@@ -22,13 +21,15 @@ const formatDate = (dateString: string) => {
 
 export default async function DashboardPage() {
   const supabase = await createServerSideClient();
+  
+  // 1. Verificação de Auth (Rápida e Necessária)
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
   }
 
-  // 1. Busca perfil (Admin ou User)
+  // 2. Busca Perfil (Precisamos saber se é admin antes de decidir o resto)
   const { data: perfil } = await supabase
     .from('profiles')
     .select('*')
@@ -37,32 +38,32 @@ export default async function DashboardPage() {
 
   const isAdmin = perfil?.role === 'admin';
 
-  // 2. Busca Agendamentos (Lógica Admin vs User)
-  let meusAgendamentos: any[] = [];
-  let todosAgendamentos: any[] = [];
+  // 3. PARALELISMO (A MÁGICA ACONTECE AQUI)
+  // Disparamos todas as requisições pesadas ao mesmo tempo
+  const [meusAgendamentosRes, arquivosRes, todosAgendamentosRes] = await Promise.all([
+    // A: Meus Agendamentos
+    supabase
+        .from('agendamentos')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false }),
+    
+    // B: Arquivos da Casa
+    supabase
+        .from('arquivos_casa')
+        .select('*')
+        .order('created_at', { ascending: false }),
 
-  // Seus agendamentos pessoais
-  const { data: dataPessoal } = await supabase
-    .from('agendamentos')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-  meusAgendamentos = dataPessoal || [];
+    // C: Todos Agendamentos (Só busca se for admin, senão retorna null instantâneo)
+    isAdmin 
+        ? supabase.from('agendamentos').select('*').order('created_at', { ascending: false })
+        : Promise.resolve({ data: [] })
+  ]);
 
-  // Se for admin, busca tudo para o painel
-  if (isAdmin) {
-     const { data: dataGeral } = await supabase
-       .from('agendamentos')
-       .select('*')
-       .order('created_at', { ascending: false });
-     todosAgendamentos = dataGeral || [];
-  }
-
-  // 3. Busca ARQUIVOS REAIS da Casa
-  const { data: arquivosReais } = await supabase
-    .from('arquivos_casa')
-    .select('*')
-    .order('created_at', { ascending: false });
+  // Extrai os dados das respostas
+  const meusAgendamentos = meusAgendamentosRes.data || [];
+  const arquivosReais = arquivosRes.data || [];
+  const todosAgendamentos = todosAgendamentosRes.data || [];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -122,7 +123,7 @@ export default async function DashboardPage() {
                         <p className="text-center py-8 text-slate-500">Nenhum agendamento encontrado.</p>
                     ) : (
                         <div className="space-y-4">
-                            {todosAgendamentos.map((item) => (
+                            {todosAgendamentos.map((item: any) => (
                                 <div key={item.id} className="bg-white p-4 rounded-lg border shadow-sm flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
@@ -153,7 +154,6 @@ export default async function DashboardPage() {
                                             {item.status.toUpperCase()}
                                         </Badge>
 
-                                        {/* CORREÇÃO AQUI: Passando o telefone, nome e data para o botão */}
                                         <AcoesAgendamento 
                                             id={item.id} 
                                             status={item.status} 
@@ -186,7 +186,7 @@ export default async function DashboardPage() {
                  </div>
             ) : (
                 <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-                  {arquivosReais.map((arquivo) => (
+                  {arquivosReais.map((arquivo: any) => (
                     <a href={arquivo.url} target="_blank" rel="noopener noreferrer" key={arquivo.id} className="block group">
                         <Card className="hover:shadow-md transition-shadow cursor-pointer border-slate-200 hover:border-primary/50 h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -226,7 +226,7 @@ export default async function DashboardPage() {
                  </div>
             ) : (
                 <div className="grid gap-4">
-                    {meusAgendamentos.map((item) => (
+                    {meusAgendamentos.map((item: any) => (
                         <Card key={item.id} className="border-l-4 border-l-primary">
                             <CardHeader className="pb-2">
                                 <div className="flex flex-col md:flex-row justify-between items-start gap-2">
