@@ -1,150 +1,155 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Star, Hammer, Leaf, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Hammer, ArrowDown, Quote, Star, Users } from "lucide-react";
 
 export default function HistoriaPage() {
-  // Dados da Linha do Tempo
-  const timeline = [
-    {
-      ano: "2009",
-      titulo: "A Semente Plantada",
-      desc: "Fundação do Terreiro de Umbanda Pai José de Aruanda. O início humilde, familiar e cheio de fé em Groaíras.",
-      icon: <Leaf className="text-green-600" />,
-      cor: "bg-green-100 border-green-200"
-    },
-    {
-      ano: "2014",
-      titulo: "Reconhecimento Social",
-      desc: "Primeira participação no Desfile Cívico do município. A Umbanda sai de casa e ganha as ruas e o respeito da sociedade.",
-      icon: <Star className="text-yellow-600" />,
-      cor: "bg-yellow-100 border-yellow-200"
-    },
-    {
-      ano: "2015",
-      titulo: "O Chamado do Candomblé",
-      desc: "Iniciação para Odé (Oxóssi) no Candomblé Ketu em São Paulo. O início da transição litúrgica e aprofundamento nos fundamentos.",
-      icon: <ArrowRight className="text-blue-600" />,
-      cor: "bg-blue-100 border-blue-200"
-    },
-    {
-      ano: "2022 - Hoje",
-      titulo: "A Grande Construção",
-      desc: "O nascimento do Ilè Asé Ègbé L'ajò Odé Igbò. A construção do templo definitivo para os Orixás.",
-      icon: <Hammer className="text-purple-600" />,
-      cor: "bg-purple-100 border-purple-200"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       
-      {/* --- HERO SECTION --- */}
-      <section className="bg-slate-900 text-white py-20 px-4 text-center relative overflow-hidden">
-        {/* Efeito de Fundo (Opcional) */}
-        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+      {/* --- HERO SECTION: O Título Impactante --- */}
+      <section className="bg-slate-900 text-white pt-24 pb-32 px-4 text-center relative overflow-hidden">
+        {/* Padrão de Fundo Suave */}
+        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:16px_16px]"></div>
         
-        <div className="relative z-10 max-w-4xl mx-auto space-y-4">
-          <Badge className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 text-sm uppercase tracking-widest">
+        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+          <Badge className="bg-yellow-500 text-slate-900 px-4 py-1 text-sm uppercase tracking-widest font-bold hover:bg-yellow-600">
             Nossa Trajetória
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-            Do Princípio à Expansão
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+            Uma Jornada de Fé e Resiliência
           </h1>
-          <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto">
-            A história de fé, resiliência e ancestralidade que transformou uma pequena casa de oração no grande Ilè Asé Ègbé L'ajò Odé Igbò.
+          <p className="text-lg md:text-xl text-slate-300 leading-relaxed">
+            Do pequeno altar doméstico ao grande templo de Orixás. Conheça os passos que nos trouxeram até aqui.
           </p>
+          <div className="flex justify-center pt-8 animate-bounce opacity-50">
+            <ArrowDown size={32} />
+          </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 -mt-10 relative z-20">
+      {/* --- CONTEÚDO EM CAPÍTULOS (LINHA DO TEMPO) --- */}
+      <div className="container mx-auto px-4 -mt-20 relative z-20 max-w-4xl">
         
-        {/* --- TEXTO PRINCIPAL --- */}
-        <div className="grid md:grid-cols-12 gap-8">
-            
-            {/* Coluna Esquerda: Texto */}
-            <div className="md:col-span-7 space-y-8">
-                <Card className="border-none shadow-lg">
-                    <CardContent className="p-8 md:p-12 space-y-6 leading-relaxed text-slate-700 text-lg">
-                        
-                        <div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <MapPin className="text-blue-500"/> O Início da Jornada
-                            </h2>
-                            <p>
-                                Muitos veem as paredes se erguendo hoje, mas os alicerces desta casa foram cavados muito antes, no solo fértil da fé. Nossa história começa em <strong className="text-blue-700">20 de janeiro de 2009</strong>, quando o Preto Velho Pai José de Aruanda fundou espiritualmente nossa primeira casa em Groaíras.
-                            </p>
-                            <p className="mt-4">
-                                Naquela época, éramos o <em>Terreiro de Umbanda Pai José de Aruanda</em>. Tudo era simples, familiar, nascido dentro de casa e acolhido pelo amor da família, especialmente de minha esposa Maria Meirelande. Enfrentamos o preconceito com trabalho e amor, mudamos de endereço diversas vezes, mas nunca deixamos faltar o acolhimento a quem batia à nossa porta.
-                            </p>
+        {/* CAPÍTULO 1: O INÍCIO (2009) */}
+        <div className="flex flex-col md:flex-row gap-6 mb-16 group">
+            {/* Coluna da Data (Esquerda) */}
+            <div className="md:w-1/4 flex flex-col items-center md:items-end text-center md:text-right pt-2">
+                <span className="text-4xl font-black text-slate-200 group-hover:text-blue-600 transition-colors">2009</span>
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">A Fundação</span>
+                <div className="h-full w-0.5 bg-slate-200 mt-4 hidden md:block group-hover:bg-blue-200"></div>
+            </div>
+
+            {/* Coluna do Conteúdo (Direita) */}
+            <div className="md:w-3/4">
+                <Card className="border-none shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div className="bg-blue-600 h-2 w-full"></div>
+                    <CardContent className="p-8">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-blue-100 text-blue-700 rounded-lg"><Users size={24}/></div>
+                            <h2 className="text-2xl font-bold text-slate-800">A Semente Plantada</h2>
                         </div>
-
-                        <hr className="border-slate-100" />
-
-                        <div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <Star className="text-yellow-500"/> O Chamado do Orixá
-                            </h2>
-                            <p>
-                                A estrada sacerdotal é feita de aprendizado constante. Em julho de 2015, um novo ciclo se iniciou. Fui recolhido e iniciado para o Orixá Odé (Oxóssi) no Candomblé de Nação Ketu, pelas mãos do Babalorixá Diego de Odé (SP).
-                            </p>
-                            <p className="mt-4">
-                                Ali, a Casa de Oxóssi Groaíras começou a beber de uma fonte mais profunda. Trouxemos para Groaíras a organização, a liturgia e os fundamentos ancestrais do Candomblé, transformando o medo do desconhecido em respeito religioso.
-                            </p>
-                        </div>
-
-                        <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500 mt-6 italic text-slate-800">
-                            "Não somos apenas uma construção de tijolos. Somos uma comunidade de fé que aprendeu que o sacerdócio exige abdicação e sabedoria."
-                        </div>
-
+                        <p className="text-slate-600 leading-relaxed text-lg mb-4">
+                            Em uma terça-feira sagrada, 20 de janeiro, o Preto Velho <strong>Pai José de Aruanda</strong> fundou espiritualmente nossa casa. Naquela época, éramos o <em>Terreiro de Umbanda Pai José de Aruanda</em>.
+                        </p>
+                        <p className="text-slate-600 leading-relaxed">
+                            Tudo começou de forma simples, dentro de casa, acolhido pelo amor de minha esposa <strong>Maria Meirelande</strong>. Enfrentamos preconceitos e mudamos de endereço várias vezes, mas nunca deixamos de acolher quem batia à nossa porta em busca de auxílio.
+                        </p>
                     </CardContent>
                 </Card>
             </div>
+        </div>
 
-            {/* Coluna Direita: Linha do Tempo Visual */}
-            <div className="md:col-span-5">
-                <div className="sticky top-24">
-                    <h3 className="text-xl font-bold text-slate-800 mb-6 px-2">Marcos Históricos</h3>
-                    
-                    <div className="space-y-6">
-                        {timeline.map((item, index) => (
-                            <div key={index} className="flex gap-4 group">
-                                <div className="flex flex-col items-center">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm z-10 ${item.cor}`}>
-                                        {item.icon}
-                                    </div>
-                                    {index !== timeline.length - 1 && (
-                                        <div className="w-0.5 h-full bg-slate-200 my-2 group-hover:bg-blue-200 transition-colors"></div>
-                                    )}
-                                </div>
-                                <div className="pb-8">
-                                    <Badge variant="outline" className="mb-2 bg-white">{item.ano}</Badge>
-                                    <h4 className="font-bold text-lg text-slate-800">{item.titulo}</h4>
-                                    <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-                                        {item.desc}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Card de Construção */}
-                    <Card className="bg-slate-900 text-white mt-8 border-none shadow-xl overflow-hidden relative">
-                         <div className="absolute inset-0 bg-blue-600 opacity-20"></div>
-                         <CardContent className="p-6 relative z-10">
-                            <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                                <Hammer className="text-yellow-400"/> O Futuro é Agora
-                            </h3>
-                            <p className="text-sm text-slate-300 mb-4">
-                                Estamos construindo o Ilè Asé Ègbé L'ajò Odé Igbò. Venha fazer parte dessa história.
-                            </p>
-                         </CardContent>
-                    </Card>
-
-                </div>
+        {/* CAPÍTULO 2: O RECONHECIMENTO (2014) */}
+        <div className="flex flex-col md:flex-row gap-6 mb-16 group">
+            <div className="md:w-1/4 flex flex-col items-center md:items-end text-center md:text-right pt-2">
+                <span className="text-4xl font-black text-slate-200 group-hover:text-yellow-500 transition-colors">2014</span>
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Marco Social</span>
+                <div className="h-full w-0.5 bg-slate-200 mt-4 hidden md:block group-hover:bg-yellow-200"></div>
             </div>
 
+            <div className="md:w-3/4">
+                <Card className="border-none shadow-xl shadow-slate-200/50">
+                    <div className="bg-yellow-500 h-2 w-full"></div>
+                    <CardContent className="p-8">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-yellow-100 text-yellow-700 rounded-lg"><Star size={24}/></div>
+                            <h2 className="text-2xl font-bold text-slate-800">Ganhando as Ruas</h2>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed text-lg">
+                            Foi um ano decisivo. Participamos pela primeira vez do <strong>Desfile Cívico</strong> do município. A Umbanda saiu de dentro de casa e se mostrou para a sociedade, transformando o medo do desconhecido em respeito religioso.
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
+
+        {/* CAPÍTULO 3: O CANDOMBLÉ (2015) */}
+        <div className="flex flex-col md:flex-row gap-6 mb-16 group">
+            <div className="md:w-1/4 flex flex-col items-center md:items-end text-center md:text-right pt-2">
+                <span className="text-4xl font-black text-slate-200 group-hover:text-purple-600 transition-colors">2015</span>
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">A Iniciação</span>
+                <div className="h-full w-0.5 bg-slate-200 mt-4 hidden md:block group-hover:bg-purple-200"></div>
+            </div>
+
+            <div className="md:w-3/4">
+                <Card className="border-none shadow-xl shadow-slate-200/50">
+                    <div className="bg-purple-600 h-2 w-full"></div>
+                    <CardContent className="p-8">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-purple-100 text-purple-700 rounded-lg"><MapPin size={24}/></div>
+                            <h2 className="text-2xl font-bold text-slate-800">O Chamado de Odé</h2>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed text-lg mb-6">
+                            A estrada sacerdotal exige evolução. Fui recolhido e iniciado para o Orixá <strong>Odé (Oxóssi)</strong> no Candomblé Ketu, pelas mãos do Babalorixá Diego de Odé (SP).
+                        </p>
+                        
+                        <div className="bg-slate-50 p-6 rounded-xl border-l-4 border-purple-500 relative italic text-slate-700">
+                            <Quote className="absolute top-4 right-4 text-slate-200 h-8 w-8" />
+                            "Trouxemos para Groaíras a organização, a liturgia e os fundamentos ancestrais do Candomblé, bebendo da fonte do Axé Oxumarê."
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+
+        {/* CAPÍTULO 4: HOJE (2022-ATUAL) */}
+        <div className="flex flex-col md:flex-row gap-6 group">
+            <div className="md:w-1/4 flex flex-col items-center md:items-end text-center md:text-right pt-2">
+                <span className="text-4xl font-black text-slate-200 group-hover:text-green-600 transition-colors">Hoje</span>
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">O Legado</span>
+            </div>
+
+            <div className="md:w-3/4">
+                <Card className="bg-slate-900 text-white border-none shadow-2xl relative overflow-hidden">
+                    {/* Imagem de fundo sutil ou padrão */}
+                    <div className="absolute top-0 right-0 p-32 bg-blue-500 rounded-full blur-[100px] opacity-20"></div>
+                    
+                    <CardContent className="p-8 md:p-10 relative z-10">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-3 bg-white/10 text-yellow-400 rounded-lg backdrop-blur-sm"><Hammer size={24}/></div>
+                            <h2 className="text-2xl md:text-3xl font-bold">Erguendo o Ilè Asé</h2>
+                        </div>
+                        <p className="text-slate-300 leading-relaxed text-lg mb-6">
+                            Desde 2022, vivemos o ápice dessa jornada. Estamos construindo o <strong>Ilè Asé Ègbé L'ajò Odé Igbò</strong>.
+                        </p>
+                        <p className="text-slate-300 leading-relaxed mb-8">
+                            Não são apenas tijolos. É um templo definitivo para cultuar nossos Orixás com dignidade e continuar nosso papel social de transformar vidas.
+                        </p>
+                        
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <Badge variant="outline" className="text-yellow-400 border-yellow-400/50 py-2 px-4 justify-center">
+                                Em Construção
+                            </Badge>
+                            <Badge variant="outline" className="text-white border-white/30 py-2 px-4 justify-center">
+                                Groaíras - CE
+                            </Badge>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+
       </div>
     </div>
   );

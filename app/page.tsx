@@ -3,19 +3,19 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-// AQUI: Adicionei 'Github' e 'Smartphone' na lista de importações
-import { Shell, Star, BookOpen, ArrowRight, MapPin, ShieldCheck, User, Flame, Instagram, Github, Smartphone } from "lucide-react";
+import { Shell, BookOpen, ArrowRight, Instagram, Github, Smartphone, User, MapPin } from "lucide-react";
 import { AgendamentoPublico } from "@/components/agendamento-publico";
+// 1. IMPORTAMOS O COMPONENTE NAVBAR
+import { Navbar } from "@/components/layout/navbar";
 
 export default function Home() {
   
-  // --- AQUI COMEÇA O PULO DO GATO (SEO) ---
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'PlaceOfWorship',
     name: "Ilè Asé Ègbé L'ajò Odé Igbò",
     alternateName: "Casa de Oxóssi Piedade",
-    image: 'hhttps://www.egbelajo-odeigbo.com.br/logo-header.png',
+    image: 'https://www.egbelajo-odeigbo.com.br/logo-header.png',
     description: 'Casa de Candomblé e culto aos orixás em Piedade, Rio de Janeiro. Agende Jogo de Búzios e trabalhos espirituais.',
     address: {
       '@type': 'PostalAddress',
@@ -41,45 +41,17 @@ export default function Home() {
       }
     ]
   }
-  // --- FIM DA CONFIGURAÇÃO SEO ---
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       
-      {/* INJEÇÃO DO SCRIPT PARA O GOOGLE LER */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* --- CABEÇALHO --- */}
-      <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-sm">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-                <div className="relative h-12 w-12 overflow-hidden rounded-full border border-slate-100 bg-slate-50 flex items-center justify-center">
-                    <Image 
-                        src="/logo-footer.png" 
-                        alt="Logo Casa de Oxóssi" 
-                        fill 
-                        className="object-cover"
-                        style={{ objectFit: 'contain', padding: '4px' }}
-                    />
-                </div>
-                <div className="flex flex-col">
-                    <span className="font-bold text-lg md:text-xl text-slate-800 leading-tight">Ilè Asé Ègbé L'ajò Odé Igbò</span>
-                    <span className="text-xs text-slate-500 font-medium tracking-wide uppercase">Piedade - RJ</span>
-                </div>
-            </div>
-
-            <Link href="/login">
-                <Button variant="outline" className="border-slate-800 text-slate-800 hover:bg-slate-800 hover:text-white transition-colors font-semibold gap-2">
-                    <User size={18} />
-                    <span className="hidden md:inline">Área do Filho</span>
-                    <span className="md:hidden">Entrar</span>
-                </Button>
-            </Link>
-        </div>
-      </header>
+      {/* 2. AQUI ESTAVA O CABEÇALHO ANTIGO. TROCAMOS PELA NAVBAR: */}
+      <Navbar />
 
       {/* --- HERO SECTION --- */}
       <section className="relative bg-slate-900 py-20 md:py-32 overflow-hidden">
@@ -99,15 +71,15 @@ export default function Home() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
              
-             {/* Botão Genérico (Usuário Escolhe) */}
              <AgendamentoPublico 
                 textoBotao="Agendar Consulta" 
                 className="w-full sm:w-auto bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold h-12 px-8 shadow-xl border-none text-base"
              />
             
-            <Link href="/doutrina">
+            {/* CORREÇÃO AQUI: Agora leva para /historia com ícone MapPin */}
+            <Link href="/historia">
               <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/50 text-white hover:bg-white/10 h-12 px-8">
-                <BookOpen className="mr-2 h-5 w-5" />
+                <MapPin className="mr-2 h-5 w-5" />
                 Conhecer a Casa
               </Button>
             </Link>
@@ -152,9 +124,8 @@ export default function Home() {
               </CardFooter>
             </Card>
 
-            {/* Card 2: INSTAGRAM DA CASA (NOVO CARROSSEL) */}
+            {/* Card 2: INSTAGRAM DA CASA */}
             <Card className="border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group overflow-hidden">
-              {/* Header estilo Instagram */}
               <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white mb-0 py-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -165,7 +136,6 @@ export default function Home() {
                         </div>
                     </div>
                     
-                    {/* Botão Seguir */}
                     <Link href="https://www.instagram.com/egbelajo_odeigbo/" target="_blank">
                         <Button size="sm" variant="secondary" className="h-7 text-xs bg-white text-purple-600 hover:bg-white/90 font-bold">
                             Seguir
@@ -174,28 +144,19 @@ export default function Home() {
                 </div>
               </CardHeader>
               
-              {/* Área das Fotos (Carrossel Manual) */}
               <CardContent className="p-0 relative h-64 bg-slate-100">
-                  {/* Container com Scroll Horizontal */}
                   <div className="flex overflow-x-auto snap-x snap-mandatory h-full scrollbar-hide">
-                        
-                        {/* FOTO 1 */}
                         <div className="min-w-full h-full relative snap-center">
                             <Image src="/insta1.png" alt="Foto da Casa 1" fill className="object-cover" />
                         </div>
-                        
-                        {/* FOTO 2 */}
                         <div className="min-w-full h-full relative snap-center">
                              <Image src="/insta2.png" alt="Foto da Casa 2" fill className="object-cover" />
                         </div>
-
-                        {/* FOTO 3 */}
                         <div className="min-w-full h-full relative snap-center">
                              <Image src="/insta4.png" alt="Foto da Casa 3" fill className="object-cover" />
                         </div>
                   </div>
 
-                  {/* Dica visual de rolagem */}
                   <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] px-3 py-1 rounded-full backdrop-blur-sm pointer-events-none font-medium">
                      Deslize para ver ⮕
                   </div>
@@ -264,24 +225,20 @@ export default function Home() {
                 © {new Date().getFullYear()} Ilè Asé Ègbé L'ajò Odé Igbò. Todos os direitos reservados.
             </div>
 
-            {/* --- CRÉDITOS DO DESENVOLVEDOR --- */}
             <div className="mt-6 flex flex-col items-center gap-3">
                 <span className="text-[10px] uppercase tracking-widest text-slate-400 font-medium">
                     Desenvolvido por <span className="text-slate-600 font-bold">Breno Caxias</span>
                 </span>
                 
                 <div className="flex items-center gap-4">
-                    {/* GitHub */}
                     <Link href="https://github.com/brenocaxias" target="_blank" title="GitHub do Desenvolvedor">
                         <Github size={18} className="text-slate-400 hover:text-slate-900 hover:scale-110 transition-all duration-300" />
                     </Link>
 
-                    {/* Instagram */}
                     <Link href="https://instagram.com/brenocaxias" target="_blank" title="Instagram do Desenvolvedor">
                         <Instagram size={18} className="text-slate-400 hover:text-pink-600 hover:scale-110 transition-all duration-300" />
                     </Link>
 
-                    {/* WhatsApp */}
                     <Link href="https://wa.me/5588994047841" target="_blank" title="Falar com Desenvolvedor">
                         <Smartphone size={18} className="text-slate-400 hover:text-green-600 hover:scale-110 transition-all duration-300" />
                     </Link>
