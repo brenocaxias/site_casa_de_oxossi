@@ -1,12 +1,14 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = 'https://www.egbelajo-odeigbo.com.br';
+
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard/', '/admin/'], // Segurança: Google não deve indexar área logada
+      disallow: ['/dashboard/', '/api/'], // Protege a área administrativa
     },
-    sitemap: 'https://www.egbelajo-odeigbo.com.br/sitemap.xml',
-  }
+    sitemap: `${baseUrl}/sitemap.xml`,
+  };
 }

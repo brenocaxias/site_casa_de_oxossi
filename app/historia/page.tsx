@@ -1,7 +1,25 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MapPin, Hammer, ArrowDown, Quote, Star, Users } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Nossa História | Fundação da Casa de Oxóssi e Pai José de Aruanda",
+  description: "Conheça a história do Ilè Asé Ègbé L'ajò Odé Igbò. Desde a fundação na Umbanda com Pai José de Aruanda em 2009 até a transição para o Candomblé e a construção do novo templo.",
+  keywords: [
+    "Pai José de Aruanda", 
+    "História Casa de Oxóssi", 
+    "Fundação do Terreiro", 
+    "Umbanda Groaíras", 
+    "Candomblé Piedade",
+    "Ilè Asé Ègbé L'ajò Odé Igbò"
+  ],
+  openGraph: {
+    title: "Nossa Trajetória de Fé - Casa de Oxóssi",
+    description: "De 2009 a hoje: A evolução espiritual da nossa casa.",
+  }
+};
 
 export default function HistoriaPage() {
   return (
@@ -142,7 +160,7 @@ export default function HistoriaPage() {
                                 Em Construção
                             </Badge>
                             <Badge variant="outline" className="text-white border-white/30 py-2 px-4 justify-center">
-                                Groaíras - CE
+                                Piedade/Encantado- RJ
                             </Badge>
                         </div>
                     </CardContent>

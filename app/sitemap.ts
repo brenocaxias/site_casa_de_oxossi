@@ -1,26 +1,36 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
+import { createServerSideClient } from '@/lib/supabase-server';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.egbelajo-odeigbo.com.br' // URL Final
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // ATENÇÃO: Coloque aqui o seu domínio oficial novo
+  const baseUrl = 'https://www.egbelajo-odeigbo.com.br';
 
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 1, // Página mais importante
-    },
-    {
-      url: `${baseUrl}/doutrina`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/login`, // Página de login tem prioridade baixa para busca
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-  ]
+  // Páginas estáticas principais
+  const routes = [
+    '',
+    '/historia',
+    '/doutrina',
+    '/login',
+    '/esqueci-senha',
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'monthly' as const,
+    priority: route === '' ? 1 : 0.8,
+  }));
+
+  // Busca artigos do banco para gerar URLs dinâmicas
+  const supabase = await createServerSideClient();
+  const { data: artigos } = await supabase
+    .from('artigos')
+    .select('slug, updated_at');
+
+  const artigosRoutes = (artigos || []).map((artigo) => ({
+    url: `${baseUrl}/doutrina/${artigo.slug}`,
+    lastModified: artigo.updated_at || new Date().toISOString(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  return [...routes, ...artigosRoutes];
 }
