@@ -1,16 +1,17 @@
 import { redirect } from 'next/navigation';
 import { createServerSideClient } from '@/lib/supabase-server';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Folder, FileText, Image as ImageIcon, Calendar, Download, Clock, CheckCircle, Smartphone, User, Music } from 'lucide-react';
+import { Folder, FileText, Image as ImageIcon, Calendar, Download, Smartphone, User, Music } from 'lucide-react';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { NovoAgendamento } from '@/components/dashboard/novo-agendamento';
 import { UploadArquivo } from '@/components/dashboard/upload-arquivo';
 import { AcoesAgendamento } from '@/components/dashboard/acoes-agendamento';
 import { CadastroFilho } from '@/components/dashboard/cadastro-filho';
 import { BotaoAlterarSenha } from '@/components/dashboard/botao-alterar-senha';
+import { NovoArtigo } from '@/components/dashboard/novo-artigo';
+import { ListaArtigos } from '@/components/dashboard/lista-artigos';
 
 const formatDate = (dateString: string) => {
     if (!dateString) return 'Data a definir';
@@ -21,15 +22,10 @@ const formatDate = (dateString: string) => {
 
 export default async function DashboardPage() {
   const supabase = await createServerSideClient();
-  
-  // 1. Verificação de Auth (Rápida e Necessária)
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect('/login');
-  }
+  if (!user) redirect('/login');
 
-  // 2. Busca Perfil (Precisamos saber se é admin antes de decidir o resto)
   const { data: perfil } = await supabase
     .from('profiles')
     .select('*')
@@ -38,32 +34,19 @@ export default async function DashboardPage() {
 
   const isAdmin = perfil?.role === 'admin';
 
-  // 3. PARALELISMO (A MÁGICA ACONTECE AQUI)
-  // Disparamos todas as requisições pesadas ao mesmo tempo
-  const [meusAgendamentosRes, arquivosRes, todosAgendamentosRes] = await Promise.all([
-    // A: Meus Agendamentos
-    supabase
-        .from('agendamentos')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false }),
-    
-    // B: Arquivos da Casa
-    supabase
-        .from('arquivos_casa')
-        .select('*')
-        .order('created_at', { ascending: false }),
-
-    // C: Todos Agendamentos (Só busca se for admin, senão retorna null instantâneo)
-    isAdmin 
-        ? supabase.from('agendamentos').select('*').order('created_at', { ascending: false })
-        : Promise.resolve({ data: [] })
+  // BUSCA TUDO AO MESMO TEMPO
+  const [meusAgendamentosRes, arquivosRes, todosAgendamentosRes, todosArtigosRes] = await Promise.all([
+    supabase.from('agendamentos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+    supabase.from('arquivos_casa').select('*').order('created_at', { ascending: false }),
+    isAdmin ? supabase.from('agendamentos').select('*').order('created_at', { ascending: false }) : Promise.resolve({ data: [] }),
+    // NOVA BUSCA: ARTIGOS (Só se for admin)
+    isAdmin ? supabase.from('artigos').select('*').order('created_at', { ascending: false }) : Promise.resolve({ data: [] })
   ]);
 
-  // Extrai os dados das respostas
   const meusAgendamentos = meusAgendamentosRes.data || [];
   const arquivosReais = arquivosRes.data || [];
   const todosAgendamentos = todosAgendamentosRes.data || [];
+  const todosArtigos = todosArtigosRes.data || [];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -76,7 +59,6 @@ export default async function DashboardPage() {
             <span className="text-sm text-slate-500 hidden md:block">
               {perfil?.full_name || user.email} ({isAdmin ? 'Pai de Santo' : 'Filho'})
             </span>
-            
             <BotaoAlterarSenha />
             <SignOutButton />
           </div>
@@ -90,33 +72,26 @@ export default async function DashboardPage() {
         <Tabs defaultValue={isAdmin ? "admin" : "arquivos"} className="w-full">
           
           <TabsList className="mb-6 w-full h-auto flex flex-wrap justify-center gap-2 bg-slate-100/80 p-2">
-            {isAdmin && (
-                <TabsTrigger value="admin" className="text-blue-600 font-bold min-w-[120px]">
-                    Painel do Pai de Santo
-                </TabsTrigger>
-            )}
-            <TabsTrigger value="arquivos" className="min-w-[120px]">
-                📂 Arquivos da Casa
-            </TabsTrigger>
-            <TabsTrigger value="agendamentos" className="min-w-[120px]">
-                📅 Meus Agendamentos
-            </TabsTrigger>
+            {isAdmin && <TabsTrigger value="admin" className="text-blue-600 font-bold min-w-[120px]">Painel do Pai de Santo</TabsTrigger>}
+            <TabsTrigger value="arquivos" className="min-w-[120px]">📂 Arquivos da Casa</TabsTrigger>
+            <TabsTrigger value="agendamentos" className="min-w-[120px]">📅 Meus Agendamentos</TabsTrigger>
           </TabsList>
 
-           {/* --- ABA ADMIN --- */}
            {isAdmin && (
-            <TabsContent value="admin">
+            <TabsContent value="admin" className="space-y-8">
+              {/* --- BLOCO 1: ATENDIMENTOS --- */}
               <Card className="border-blue-200 bg-blue-50/30">
-                  <CardHeader className="flex flex-row items-center justify-between">
+                  <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                       <div>
                         <CardTitle className="text-blue-800 flex items-center gap-2">
-                            <User className="h-6 w-6"/> Gestão de Atendimentos
+                            <User className="h-6 w-6"/> Gestão da Casa
                         </CardTitle>
-                        <CardDescription>Visualize pedidos e cadastre novos filhos.</CardDescription>
+                        <CardDescription>Gerencie atendimentos e conteúdo do site.</CardDescription>
                       </div>
-                      
-                      <CadastroFilho />
-
+                      <div className="flex flex-wrap gap-2">
+                          <CadastroFilho />
+                          <NovoArtigo userId={user.id} />
+                      </div>
                   </CardHeader>
                   <CardContent>
                     {todosAgendamentos.length === 0 ? (
@@ -127,9 +102,7 @@ export default async function DashboardPage() {
                                 <div key={item.id} className="bg-white p-4 rounded-lg border shadow-sm flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold text-lg text-slate-800">
-                                                {item.cliente_nome || "Filho da Casa"}
-                                            </span>
+                                            <span className="font-bold text-lg text-slate-800">{item.cliente_nome || "Filho da Casa"}</span>
                                             {item.cliente_contato && (
                                                 <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 gap-1">
                                                     <Smartphone size={12}/> {item.cliente_contato}
@@ -140,28 +113,13 @@ export default async function DashboardPage() {
                                             {item.tipo_jogo === 'buzios_completo' ? 'Jogo de Búzios' : 'Consulta'} 
                                             • <span className="font-medium text-slate-700">{formatDate(item.data_agendamento)}</span>
                                         </p>
-                                        {item.notas && (
-                                            <p className="text-xs text-slate-400 italic">"{item.notas}"</p>
-                                        )}
+                                        {item.notas && <p className="text-xs text-slate-400 italic">"{item.notas}"</p>}
                                     </div>
-                                    
                                     <div className="flex items-center gap-3">
-                                        <Badge className={
-                                            item.status === 'pendente' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 
-                                            item.status === 'confirmado' ? 'bg-green-100 text-green-800 border-green-200' :
-                                            'bg-red-100 text-red-800 border-red-200'
-                                        }>
+                                        <Badge className={item.status === 'pendente' ? 'bg-yellow-100 text-yellow-800' : item.status === 'confirmado' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                                             {item.status.toUpperCase()}
                                         </Badge>
-
-                                        <AcoesAgendamento 
-                                            id={item.id} 
-                                            status={item.status} 
-                                            telefone={item.cliente_contato}
-                                            nome={item.cliente_nome}
-                                            data={formatDate(item.data_agendamento)}
-                                        />
-                                        
+                                        <AcoesAgendamento id={item.id} status={item.status} telefone={item.cliente_contato} nome={item.cliente_nome} data={formatDate(item.data_agendamento)}/>
                                     </div>
                                 </div>
                             ))}
@@ -169,17 +127,20 @@ export default async function DashboardPage() {
                     )}
                   </CardContent>
               </Card>
+
+              {/* --- BLOCO 2: HISTÓRICO DE ARTIGOS --- */}
+              <ListaArtigos artigos={todosArtigos} />
+
             </TabsContent>
            )}
 
-          {/* --- ABA ARQUIVOS --- */}
           <TabsContent value="arquivos">
+             {/* ... Conteúdo de Arquivos (Igual) ... */}
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-slate-700">Material de Estudo e Fotos</h3>
                 {isAdmin && <UploadArquivo />}
              </div>
-
-            {(!arquivosReais || arquivosReais.length === 0) ? (
+             {(!arquivosReais || arquivosReais.length === 0) ? (
                  <div className="text-center py-20 text-slate-400 bg-white border rounded-lg">
                     <Folder className="mx-auto h-12 w-12 mb-4 opacity-50" />
                     <p>Ainda não há arquivos compartilhados.</p>
@@ -208,17 +169,15 @@ export default async function DashboardPage() {
             )}
           </TabsContent>
 
-          {/* --- ABA MEUS AGENDAMENTOS --- */}
           <TabsContent value="agendamentos" className="space-y-4">
-            
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-lg border shadow-sm">
+             {/* ... Conteúdo Meus Agendamentos (Igual) ... */}
+             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-lg border shadow-sm">
                 <div>
                     <h3 className="font-bold text-lg">Seus Pedidos</h3>
                     <p className="text-sm text-slate-500">Acompanhe suas solicitações pessoais.</p>
                 </div>
                 <NovoAgendamento userId={user.id} />
             </div>
-
             {(!meusAgendamentos || meusAgendamentos.length === 0) ? (
                  <div className="text-center py-10 text-slate-500 border-2 border-dashed rounded-lg bg-slate-50/50">
                     <Calendar className="mx-auto h-10 w-10 mb-3 text-slate-300" />
@@ -236,11 +195,7 @@ export default async function DashboardPage() {
                                         </CardTitle>
                                         <CardDescription>Solicitado para: {formatDate(item.data_agendamento)}</CardDescription>
                                     </div>
-                                    <Badge className={
-                                            item.status === 'pendente' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 
-                                            item.status === 'confirmado' ? 'bg-green-100 text-green-800 border-green-200' :
-                                            'bg-red-100 text-red-800 border-red-200'
-                                        }>
+                                    <Badge className={item.status === 'pendente' ? 'bg-yellow-100 text-yellow-800' : item.status === 'confirmado' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                                         {item.status.toUpperCase()}
                                     </Badge>
                                 </div>
