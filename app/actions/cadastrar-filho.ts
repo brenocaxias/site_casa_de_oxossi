@@ -1,52 +1,76 @@
-'use server'
+'use server';
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
+import { z } from 'zod';
+
+const schemaCadastro = z.object({
+  email: z.string().email("E-mail inválido."),
+  senha: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
+  nome: z.string().min(3, "O nome deve ter no mínimo 3 caracteres."),
+  telefone: z.string().optional(),
+});
 
 export async function cadastrarFilho(formData: FormData) {
-  const nome = formData.get('nome') as string
-  const email = formData.get('email') as string
-  const senha = formData.get('senha') as string
+  const rawData = {
+    email: formData.get('email'),
+    senha: formData.get('senha'),
+    nome: formData.get('nome'),
+    telefone: formData.get('telefone'),
+  };
 
-  // 1. Criar cliente com a Chave Mestra (Service Role)
+  const validacao = schemaCadastro.safeParse(rawData);
+
+  if (!validacao.success) {
+    // CORREÇÃO AQUI: Mudamos de .errors para .issues
+    return { 
+      error: validacao.error.issues[0].message 
+    };
+  }
+
+  const { email, senha, nome, telefone } = validacao.data;
+
+  // Cliente Admin (Service Role)
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!, 
     {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
+        persistSession: false 
       }
     }
-  )
+  );
 
-  // 2. Criar o Usuário na Autenticação
-  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-    email: email,
-    password: senha,
-    email_confirm: true
-  })
+  try {
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: senha,
+      email_confirm: true,
+      user_metadata: { nome }
+    });
 
-  if (authError) {
-    return { error: 'Erro ao criar login: ' + authError.message }
+    if (authError) throw new Error(authError.message);
+    if (!authData.user) throw new Error("Erro ao criar usuário.");
+
+    const { error: dbError } = await supabaseAdmin
+      .from('filhos')
+      .insert({
+        id: authData.user.id,
+        nome,
+        email,
+        telefone,
+        data_cadastro: new Date().toISOString(),
+      });
+
+    if (dbError) {
+      console.error("Erro no banco:", dbError);
+      throw new Error("Usuário criado, mas erro ao salvar perfil.");
+    }
+
+    return { success: "Filho de santo cadastrado com sucesso!" };
+
+  } catch (error: any) {
+    console.error("Erro no cadastro:", error);
+    return { error: error.message || "Erro interno ao cadastrar." };
   }
-
-  if (!authData.user) {
-    return { error: 'Erro desconhecido ao criar usuário.' }
-  }
-
-  // 3. Criar ou Atualizar o Perfil (UPSERT resolve o erro de duplicação)
-  const { error: profileError } = await supabaseAdmin
-    .from('profiles')
-    .upsert({
-      id: authData.user.id,
-      full_name: nome,
-      role: 'user',
-      email: email
-    })
-
-  if (profileError) {
-    return { error: 'Usuário criado, mas erro ao salvar perfil: ' + profileError.message }
-  }
-
-  return { success: true }
 }

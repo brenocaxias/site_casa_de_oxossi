@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   
   title: {
-    default: "Ilè Asé Ègbé L'ajò Odé Igbò | Casa de Candomblé RJ",
+    default: "Ilè Asé Ègbé L'ajò Odé Igbò | Casa de Oxóssi RJ",
     template: "%s | Ilè Asé Ègbé L'ajò"
   },
   
-  description: 'Terreiro de Candomblé e Culto aos Orixás em Piedade, RJ. Agende Jogo de Búzios, Trabalhos Espirituais e conheça nossa doutrina.',
+  description: 'Terreiro de Candomblé e Culto aos Orixás em Piedade/Encantado, RJ. Agende Jogo de Búzios, Trabalhos Espirituais e conheça nossa doutrina.',
   
   keywords: [
     'Candomblé', 'Jogo de Búzios', 'Terreiro RJ', 'Piedade', 'Encantado',
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     'ebós', 'ebó limpeza', 'ebó saúde', 'saber meu orixá', 'saber meu pai de cabeça', 'saber minha mãe de cabeça',
     'egbe lajo ode igbo', "Ègbé L'ajò Odé Igbò", 'egbe lajo encantado rio de janeiro', 'egbe lajo casa de oxossi',
     'egbe lajo ode igbo encantado rj', 'egbe lajo ode igbo encantado rio de janeiro', ' ilè asè casa de oxóssi rio de janeiro',
-    'terreiro de macumba em encantado rj'
+    'terreiro de macumba em encantado rj', 'egbe lajo ode ibo', 'ebe lajó odé ibô'
   ],
   
   authors: [{ name: 'Ilè Asé Ègbé L ajò' }],
@@ -37,11 +37,11 @@ export const metadata: Metadata = {
     locale: 'pt_BR',
     url: baseUrl,
     siteName: "Ilè Asé Ègbé L'ajò Odé Igbò",
-    title: "Ilè Asé Ègbé L'ajò Odé Igbò",
+    title: "Ilè Asé Ègbé L'ajò Odé Igbò- Casa de Oxóssi RJ",
     description: 'Tradição, Fé e Ancestralidade. Agende sua consulta de Búzios.',
     images: [
       {
-        url: '/logo-footer.png',
+        url: '/icon.png',
         width: 1200,
         height: 630,
         alt: 'Fachada do Ilè Asé Ègbé L ajò',

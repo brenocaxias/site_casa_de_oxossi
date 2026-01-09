@@ -1,45 +1,45 @@
-import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link"; // <--- Importei o Link
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MapPin, Hammer, ArrowDown, Quote, Star, Users } from "lucide-react";
-
-export const metadata: Metadata = {
-  title: "Nossa História | Fundação da Casa de Oxóssi e Pai José de Aruanda",
-  description: "Conheça a história do Ilè Asé Ègbé L'ajò Odé Igbò. Desde a fundação na Umbanda com Pai José de Aruanda em 2009 até a transição para o Candomblé e a construção do novo templo.",
-  keywords: [
-    "Pai José de Aruanda", 
-    "História Casa de Oxóssi", 
-    "Fundação do Terreiro", 
-    "Umbanda Groaíras", 
-    "Candomblé Piedade",
-    "Ilè Asé Ègbé L'ajò Odé Igbò"
-  ],
-  openGraph: {
-    title: "Nossa Trajetória de Fé - Casa de Oxóssi",
-    description: "De 2009 a hoje: A evolução espiritual da nossa casa.",
-  }
-};
 
 export default function HistoriaPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       
       {/* --- HERO SECTION: O Título Impactante --- */}
-      <section className="bg-slate-900 text-white pt-24 pb-32 px-4 text-center relative overflow-hidden">
+      <section className="bg-slate-900 text-white pt-16 pb-32 px-4 text-center relative overflow-hidden">
         {/* Padrão de Fundo Suave */}
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:16px_16px]"></div>
         
-        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-          <Badge className="bg-yellow-500 text-slate-900 px-4 py-1 text-sm uppercase tracking-widest font-bold hover:bg-yellow-600">
+        <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+          
+          {/* --- LOGO CENTRALIZADA COM LINK PARA HOME --- */}
+          <Link href="/" className="mb-8 group" title="Voltar para o Início">
+            <div className="bg-white/95 p-4 rounded-full shadow-[0_0_30px_rgba(59,130,246,0.3)] group-hover:scale-110 group-hover:bg-white transition-all duration-300 cursor-pointer">
+                <Image 
+                    src="/logo-footer.png" 
+                    alt="Logo Casa de Oxóssi" 
+                    width={80} 
+                    height={80} 
+                    className="w-16 h-16 object-contain"
+                />
+            </div>
+          </Link>
+
+          <Badge className="bg-yellow-500 text-slate-900 px-4 py-1 text-sm uppercase tracking-widest font-bold hover:bg-yellow-600 mb-6">
             Nossa Trajetória
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+          
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
             Uma Jornada de Fé e Resiliência
           </h1>
-          <p className="text-lg md:text-xl text-slate-300 leading-relaxed">
+          
+          <p className="text-lg md:text-xl text-slate-300 leading-relaxed max-w-2xl">
             Do pequeno altar doméstico ao grande templo de Orixás. Conheça os passos que nos trouxeram até aqui.
           </p>
+          
           <div className="flex justify-center pt-8 animate-bounce opacity-50">
             <ArrowDown size={32} />
           </div>
@@ -160,7 +160,7 @@ export default function HistoriaPage() {
                                 Em Construção
                             </Badge>
                             <Badge variant="outline" className="text-white border-white/30 py-2 px-4 justify-center">
-                                Piedade/Encantado- RJ
+                                Piedade/Encantado - RJ
                             </Badge>
                         </div>
                     </CardContent>
