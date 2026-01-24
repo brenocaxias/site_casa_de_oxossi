@@ -65,13 +65,13 @@ export function AgendamentoPublico({
     } else {
       // 2. Prepara o link do WhatsApp
       // SUBSTITUA PELO SEU NÚMERO (COM 55 E DDD)
-      const numeroPaiDeSanto = "5521999999999"; 
+      const numeroPaiDeSanto = "5521969690953"; 
       
       const dataFormatada = new Date(dataInput).toLocaleString('pt-BR', { 
           day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
       });
 
-      const mensagem = `Olá! Acabei de fazer um agendamento no site e gostaria de confirmar.\n\n👤 *Nome:* ${nome}\n📅 *Data:* ${dataFormatada}\n🔮 *Tipo:* Jogo de Búzios\n\nFico no aguardo!`;
+      const mensagem = `Olá! Acabei de fazer um agendamento no site e gostaria de confirmar.\n\n *Nome:* ${nome}\n *Data:* ${dataFormatada}\n *Tipo:* Jogo de Búzios\n\nFico no aguardo!`;
       
       const link = `https://wa.me/${5521969690953}?text=${encodeURIComponent(mensagem)}`;
       setLinkWhatsapp(link);
