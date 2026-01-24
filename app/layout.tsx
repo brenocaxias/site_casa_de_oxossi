@@ -26,8 +26,26 @@ export const metadata: Metadata = {
     'ebós', 'ebó limpeza', 'ebó saúde', 'saber meu orixá', 'saber meu pai de cabeça', 'saber minha mãe de cabeça',
     'egbe lajo ode igbo', "Ègbé L'ajò Odé Igbò", 'egbe lajo encantado rio de janeiro', 'egbe lajo casa de oxossi',
     'egbe lajo ode igbo encantado rj', 'egbe lajo ode igbo encantado rio de janeiro', ' ilè asè casa de oxóssi rio de janeiro',
-    'terreiro de macumba em encantado rj', 'egbe lajo ode ibo', 'ebe lajó odé ibô'
+    'terreiro de macumba em encantado rj', 'egbe lajo ode ibo', 'ebe lajó odé ibô', 'ile ase egbe lajo', 'ile ase egbe lajo ode igbo',
+    'casa de oxossi groairas candomblea', 'terreiro de macumba casa de oxossi piedade rj', 'terreiro de macumba casa de oxossi encantado rj',
+    'Pai Edson de Oxóssi', 'Bàbá Edson de Oxóssi', 'Bàbá Edson de Odé Igbò', 'Casa de Oxóssi Groairas', 'Mãe meire de Oyá',
+    'Maria Padilha', 'Oxum', 'Exu', 'Preto Velho', 'Oxóssi rei de Ketu', 'Umbanda', 'Casa de Axé piedade rj',
+    'casa de axé encantado rj', 'casa de axé rio de janeiro', 'casa de axé famosa', 'casa de axé boa em piedade rj',
+    'casa de axé poderosa rj', 'casa de axé poderosa em piedade rio de janeiro', 'casa de oxóssi groaíras filial rj',
+    'casa', 'axé', 'rio de janeiro', 'rj', 'piedade', 'encantado', 'macumba', 'búzios', 'orixá de cabeça',
+    'quem é meu guia?', 'qual é minha pombogira?', 'como saber meu exu e minha pombogira'
   ],
+  // --- ADICIONE ESTE BLOCO ABAIXO ---
+  icons: {
+    icon: '/icon.png',      // Ícone padrão do navegador
+    shortcut: '/icon.png',  // Atalho
+    apple: '/icon.png',     // Ícone para iPhone/iPad
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/icon.png',
+    },
+  },
+  // ---------------------------------
   
   authors: [{ name: 'Ilè Asé Ègbé L ajò' }],
   creator: 'Ilè Asé Ègbé L ajò',
