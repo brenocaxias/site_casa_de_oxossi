@@ -86,7 +86,7 @@ export default function Home() {
       </section>
 
       {/* --- SEÇÃO DO ORÁCULO --- */}
-      <section className="py-16 bg-white border-b border-border">
+      <section className="py-18 bg-white border-b border-border">
           <div className="container mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                   <div className="text-center lg:text-left">
@@ -96,7 +96,7 @@ export default function Home() {
                           Concentre-se no seu momento, respire fundo e analise como o 
                           <span className="font-bold text-secondary"> Odu pode ajudar você </span>.
                       </p>
-                      <div className="hidden lg:block p-4 bg-sky-50 rounded-lg border border-sky-100 text-sky-900 text-sm italic">
+                      <div className="hidden lg:block p-4 bg-sky-50 rounded-lg border border-sky-100 text-sky900 text-sm italic">
                           "O oráculo não decide por você, mas ilumina o caminho para que você possa caminhar."
                       </div>
                   </div>
