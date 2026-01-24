@@ -14,22 +14,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '@/lib/supabase';
-import { Calendar, Loader2, CheckCircle2 } from 'lucide-react';
-// MUDANÇA: Usando o Sonner (novo sistema de toast)
+import { Calendar, Loader2, CheckCircle2, Shell } from 'lucide-react';
 import { toast } from "sonner";
 
 interface AgendamentoPublicoProps {
   className?: string;
   textoBotao?: string;
-  jogoPreSelecionado?: string;
+  jogoPreSelecionado?: string; // Mantido para compatibilidade, mas ignorado na UI
 }
 
 export function AgendamentoPublico({ 
     className, 
     textoBotao = "Agendar Consulta", 
-    jogoPreSelecionado = "" 
 }: AgendamentoPublicoProps) {
     
   const [open, setOpen] = useState(false);
@@ -39,15 +36,15 @@ export function AgendamentoPublico({
   const [formData, setFormData] = useState({
     nome: '',
     contato: '',
-    tipo_jogo: jogoPreSelecionado,
+    tipo_jogo: 'buzios_completo', // Fixo: Único tipo disponível
     data_preferencia: '',
     notas: ''
   });
 
   const handleAgendar = async () => {
     // Validação básica
-    if (!formData.nome || !formData.contato || !formData.tipo_jogo) {
-      toast.error("Por favor, preencha nome, contato e tipo de jogo.");
+    if (!formData.nome || !formData.contato) {
+      toast.error("Por favor, preencha nome e contato.");
       return;
     }
 
@@ -55,10 +52,9 @@ export function AgendamentoPublico({
 
     try {
         const { error } = await supabase.from('agendamentos').insert({
-            // Como é público, não enviamos user_id (será nulo ou tratado no backend)
             cliente_nome: formData.nome,
             cliente_contato: formData.contato,
-            tipo_jogo: formData.tipo_jogo,
+            tipo_jogo: formData.tipo_jogo, // Envia 'buzios_completo' automaticamente
             data_agendamento: formData.data_preferencia ? new Date(formData.data_preferencia).toISOString() : null,
             notas: formData.notas,
             status: 'pendente'
@@ -71,7 +67,7 @@ export function AgendamentoPublico({
 
     } catch (error: any) {
         console.error(error);
-        toast.error("Erro ao agendar. Tente novamente ou chame no WhatsApp.");
+        toast.error("Erro ao agendar. Tente novamente.");
     } finally {
         setLoading(false);
     }
@@ -82,7 +78,7 @@ export function AgendamentoPublico({
       setFormData({
         nome: '',
         contato: '',
-        tipo_jogo: jogoPreSelecionado,
+        tipo_jogo: 'buzios_completo',
         data_preferencia: '',
         notas: ''
       });
@@ -91,7 +87,7 @@ export function AgendamentoPublico({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
-        if (!isOpen && sucesso) resetForm(); // Reseta ao fechar se tiver finalizado
+        if (!isOpen && sucesso) resetForm();
         setOpen(isOpen);
     }}>
       <DialogTrigger asChild>
@@ -100,13 +96,8 @@ export function AgendamentoPublico({
         </Button>
       </DialogTrigger>
       
-      {/* MUDANÇA CRÍTICA PARA MOBILE:
-         - max-h-[90vh]: Altura máxima de 90% da tela
-         - overflow-y-auto: Permite rolar se não couber
-         - w-[95%]: Largura quase total no celular
-         - rounded-xl: Bordas mais arredondadas
-      */}
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-md rounded-xl p-4 sm:p-6">
+      {/* Layout Mobile Otimizado (max-h-90vh + scroll) */}
+      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-md rounded-xl p-5">
         
         {sucesso ? (
             <div className="flex flex-col items-center justify-center py-6 text-center space-y-4 animate-in fade-in zoom-in duration-300">
@@ -115,8 +106,8 @@ export function AgendamentoPublico({
                 </div>
                 <DialogTitle className="text-2xl font-bold text-green-700">Pedido Recebido!</DialogTitle>
                 <p className="text-muted-foreground">
-                    Sua solicitação foi enviada para a secretaria da casa. 
-                    <br/>Em breve entraremos em contato pelo número informado para confirmar o horário.
+                    Sua solicitação para o <strong>Jogo de Búzios</strong> foi enviada. 
+                    <br/>Em breve entraremos em contato para confirmar o horário.
                 </p>
                 <Button onClick={resetForm} className="mt-4 bg-green-600 hover:bg-green-700 text-white w-full font-bold">
                     Entendido, Axé!
@@ -124,13 +115,13 @@ export function AgendamentoPublico({
             </div>
         ) : (
             <>
-                <DialogHeader className="mb-2">
-                <DialogTitle className="text-primary flex items-center gap-2 text-xl">
-                    <Calendar className="w-5 h-5" /> Agendar Atendimento
-                </DialogTitle>
-                <DialogDescription>
-                    Preencha seus dados. Entraremos em contato para confirmar o horário.
-                </DialogDescription>
+                <DialogHeader className="mb-2 space-y-2">
+                    <DialogTitle className="text-primary flex items-center gap-2 text-xl">
+                        <Shell className="w-5 h-5" /> Agendar Jogo de Búzios
+                    </DialogTitle>
+                    <DialogDescription>
+                        Preencha seus dados para marcar sua leitura com o Pai de Santo.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-4 py-2">
@@ -147,37 +138,17 @@ export function AgendamentoPublico({
                         />
                     </div>
 
-                    {/* Contato e Tipo (Lado a Lado no Desktop, Um abaixo do outro no Mobile) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="contato" className="text-foreground font-semibold">WhatsApp / Telefone</Label>
-                            <Input 
-                                id="contato" 
-                                placeholder="(21) 99999-9999" 
-                                value={formData.contato}
-                                onChange={(e) => setFormData({...formData, contato: e.target.value})}
-                                type="tel"
-                                className="bg-slate-50 border-slate-200 focus:border-primary"
-                            />
-                        </div>
-
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="jogo" className="text-foreground font-semibold">Tipo de Consulta</Label>
-                            <Select 
-                                value={formData.tipo_jogo} 
-                                onValueChange={(val) => setFormData({...formData, tipo_jogo: val})}
-                            >
-                                <SelectTrigger className="bg-slate-50 border-slate-200">
-                                    <SelectValue placeholder="Selecione..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="buzios_completo">Jogo de Búzios</SelectItem>
-                                    <SelectItem value="consulta_espiritual">Consulta Espiritual</SelectItem>
-                                    <SelectItem value="trabalho">Ebó / Trabalho</SelectItem>
-                                    <SelectItem value="limpeza">Limpeza</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                    {/* Contato (Agora largura total) */}
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="contato" className="text-foreground font-semibold">WhatsApp / Telefone</Label>
+                        <Input 
+                            id="contato" 
+                            placeholder="(21) 99999-9999" 
+                            value={formData.contato}
+                            onChange={(e) => setFormData({...formData, contato: e.target.value})}
+                            type="tel"
+                            className="bg-slate-50 border-slate-200 focus:border-primary"
+                        />
                     </div>
 
                     {/* Data */}
@@ -205,13 +176,13 @@ export function AgendamentoPublico({
                     </div>
                 </div>
 
-                <DialogFooter className="mt-4 gap-2 sm:gap-0">
+                <DialogFooter className="mt-4 gap-2 sm:gap-0 flex-col sm:flex-row">
                     <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
                         Cancelar
                     </Button>
                     <Button onClick={handleAgendar} disabled={loading} className="w-full sm:w-auto bg-primary hover:bg-sky-600 text-white font-bold">
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Solicitar Agendamento
+                        Confirmar Agendamento
                     </Button>
                 </DialogFooter>
             </>
