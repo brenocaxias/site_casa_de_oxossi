@@ -1,192 +1,221 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, CalendarCheck, User, Smartphone, Clock, FileText, CalendarDays, MessageCircle } from 'lucide-react'; // Adicionei MessageCircle
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from '@/lib/supabase';
+import { Calendar, Loader2, CheckCircle2 } from 'lucide-react';
+// MUDANÇA: Usando o Sonner (novo sistema de toast)
+import { toast } from "sonner";
 
-interface AgendamentoProps {
-    textoBotao?: string;
-    variant?: "default" | "secondary" | "outline" | "ghost" | "link";
-    className?: string;
-    jogoPreSelecionado?: "buzios_completo" | "perguntas";
+interface AgendamentoPublicoProps {
+  className?: string;
+  textoBotao?: string;
+  jogoPreSelecionado?: string;
 }
 
 export function AgendamentoPublico({ 
-    textoBotao = "Agendar Horário", 
-    variant = "default", 
-    className,
-}: AgendamentoProps) {
-  
+    className, 
+    textoBotao = "Agendar Consulta", 
+    jogoPreSelecionado = "" 
+}: AgendamentoPublicoProps) {
+    
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(false);
-  
-  // Estado para guardar o link gerado caso o popup falhe
-  const [linkWhatsapp, setLinkWhatsapp] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [formData, setFormData] = useState({
+    nome: '',
+    contato: '',
+    tipo_jogo: jogoPreSelecionado,
+    data_preferencia: '',
+    notas: ''
+  });
+
+  const handleAgendar = async () => {
+    // Validação básica
+    if (!formData.nome || !formData.contato || !formData.tipo_jogo) {
+      toast.error("Por favor, preencha nome, contato e tipo de jogo.");
+      return;
+    }
+
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const dataInput = formData.get('data') as string;
-    const nome = formData.get('nome') as string;
-    
-    const agendamento = {
-        tipo_jogo: 'buzios_completo',
-        data_agendamento: dataInput,
-        cliente_nome: nome,
-        cliente_contato: formData.get('contato'),
-        notas: formData.get('notas'),
-        status: 'pendente'
-    };
+    try {
+        const { error } = await supabase.from('agendamentos').insert({
+            // Como é público, não enviamos user_id (será nulo ou tratado no backend)
+            cliente_nome: formData.nome,
+            cliente_contato: formData.contato,
+            tipo_jogo: formData.tipo_jogo,
+            data_agendamento: formData.data_preferencia ? new Date(formData.data_preferencia).toISOString() : null,
+            notas: formData.notas,
+            status: 'pendente'
+        });
 
-    // 1. Salva no banco (Backup)
-    const { error } = await supabase.from('agendamentos').insert(agendamento);
+        if (error) throw error;
 
-    setLoading(false);
+        setSucesso(true);
+        toast.success("Solicitação enviada com sucesso!");
 
-    if (error) {
-      alert('Erro ao agendar. Tente novamente.');
-      console.error(error);
-    } else {
-      // 2. Prepara o link do WhatsApp
-      // SUBSTITUA PELO SEU NÚMERO (COM 55 E DDD)
-      const numeroPaiDeSanto = "5521969690953"; 
-      
-      const dataFormatada = new Date(dataInput).toLocaleString('pt-BR', { 
-          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
-      });
-
-      const mensagem = `Olá! Acabei de fazer um agendamento no site e gostaria de confirmar.\n\n *Nome:* ${nome}\n *Data:* ${dataFormatada}\n *Tipo:* Jogo de Búzios\n\nFico no aguardo!`;
-      
-      const link = `https://wa.me/${5521969690953}?text=${encodeURIComponent(mensagem)}`;
-      setLinkWhatsapp(link);
-
-      // 3. Tenta abrir automaticamente
-      // Nota: Alguns navegadores bloqueiam se não for clique direto, por isso mantemos o botão no dialog de sucesso
-      window.open(link, '_blank');
-
-      setSucesso(true);
+    } catch (error: any) {
+        console.error(error);
+        toast.error("Erro ao agendar. Tente novamente ou chame no WhatsApp.");
+    } finally {
+        setLoading(false);
     }
   };
 
-  if (sucesso) {
-     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant={variant} className={className}>{textoBotao}</Button>
-            </DialogTrigger>
-            <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-center sm:max-w-md border border-slate-100 shadow-2xl rounded-2xl p-8 z-[100]">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-2 animate-in zoom-in duration-300">
-                        <MessageCircle size={32} />
-                    </div>
-                    <DialogTitle className="text-2xl font-bold text-green-700">Quase lá!</DialogTitle>
-                    <DialogDescription className="text-slate-600 text-lg">
-                        Seu pré-agendamento foi salvo. <br/>
-                        Para garantir o horário, <strong>confirme a mensagem no WhatsApp</strong> que acabamos de abrir.
-                    </DialogDescription>
-                    
-                    {/* Botão caso o popup tenha sido bloqueado */}
-                    <Button 
-                        onClick={() => window.open(linkWhatsapp, '_blank')} 
-                        className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold rounded-full h-12 flex items-center justify-center gap-2"
-                    >
-                        <MessageCircle className="w-5 h-5" />
-                        Confirmar no WhatsApp
-                    </Button>
-
-                    <Button variant="ghost" onClick={() => { setOpen(false); setSucesso(false); }} className="mt-2 text-slate-400 hover:text-slate-600">
-                        Fechar
-                    </Button>
-                </div>
-            </DialogContent>
-        </Dialog>
-     )
-  }
+  const resetForm = () => {
+      setSucesso(false);
+      setFormData({
+        nome: '',
+        contato: '',
+        tipo_jogo: jogoPreSelecionado,
+        data_preferencia: '',
+        notas: ''
+      });
+      setOpen(false);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+        if (!isOpen && sucesso) resetForm(); // Reseta ao fechar se tiver finalizado
+        setOpen(isOpen);
+    }}>
       <DialogTrigger asChild>
-        <Button variant={variant} className={className}>
+        <Button className={className}>
             {textoBotao}
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:max-w-[500px] bg-white text-slate-900 border border-slate-200 shadow-2xl rounded-xl z-[100] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="border-b pb-4 mb-4">
-          <DialogTitle className="flex items-center gap-2 text-xl text-slate-800 font-bold">
-             <CalendarDays className="h-6 w-6 text-yellow-600" /> Agendar Jogo de Búzios
-          </DialogTitle>
-          <DialogDescription className="text-slate-500">
-            Preencha seus dados para solicitar o agendamento. A confirmação será feita via WhatsApp.
-          </DialogDescription>
-        </DialogHeader>
+      {/* MUDANÇA CRÍTICA PARA MOBILE:
+         - max-h-[90vh]: Altura máxima de 90% da tela
+         - overflow-y-auto: Permite rolar se não couber
+         - w-[95%]: Largura quase total no celular
+         - rounded-xl: Bordas mais arredondadas
+      */}
+      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-md rounded-xl p-4 sm:p-6">
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-            
-            <div className="space-y-2">
-                <Label htmlFor="nome" className="text-slate-700 font-medium">Seu Nome</Label>
-                <div className="relative">
-                    <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                    <Input id="nome" name="nome" placeholder="Como gosta de ser chamado" required className="pl-10 bg-slate-50 border-slate-300 focus:border-yellow-500" />
+        {sucesso ? (
+            <div className="flex flex-col items-center justify-center py-6 text-center space-y-4 animate-in fade-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">
+                    <CheckCircle2 size={40} />
                 </div>
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="contato" className="text-slate-700 font-medium">Seu WhatsApp</Label>
-                <div className="relative">
-                    <Smartphone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                    <Input id="contato" name="contato" placeholder="(XX) 9XXXX-XXXX" required className="pl-10 bg-slate-50 border-slate-300 focus:border-yellow-500" />
-                </div>
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="data" className="text-slate-700 font-medium">Data e Hora Preferida</Label>
-                <div className="relative">
-                    <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                    <Input 
-                        id="data" 
-                        name="data" 
-                        type="datetime-local" 
-                        required 
-                        className="pl-10 bg-slate-50 border-slate-300 focus:border-yellow-500 text-slate-600 w-full" 
-                    />
-                </div>
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="notas" className="text-slate-700 font-medium">Observações (Opcional)</Label>
-                <div className="relative">
-                    <FileText className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                    <Textarea id="notas" name="notas" placeholder="Ex: É sobre saúde, amor..." className="pl-10 min-h-[80px] bg-slate-50 border-slate-300 focus:border-yellow-500 resize-none" />
-                </div>
-            </div>
-
-            <DialogFooter className="pt-4 border-t mt-4">
-                <Button type="submit" disabled={loading} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 text-lg shadow-md">
-                    {loading ? (
-                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...</>
-                    ) : (
-                        'Agendar e confirmar no whatsapp'
-                    )}
+                <DialogTitle className="text-2xl font-bold text-green-700">Pedido Recebido!</DialogTitle>
+                <p className="text-muted-foreground">
+                    Sua solicitação foi enviada para a secretaria da casa. 
+                    <br/>Em breve entraremos em contato pelo número informado para confirmar o horário.
+                </p>
+                <Button onClick={resetForm} className="mt-4 bg-green-600 hover:bg-green-700 text-white w-full font-bold">
+                    Entendido, Axé!
                 </Button>
-            </DialogFooter>
-        </form>
+            </div>
+        ) : (
+            <>
+                <DialogHeader className="mb-2">
+                <DialogTitle className="text-primary flex items-center gap-2 text-xl">
+                    <Calendar className="w-5 h-5" /> Agendar Atendimento
+                </DialogTitle>
+                <DialogDescription>
+                    Preencha seus dados. Entraremos em contato para confirmar o horário.
+                </DialogDescription>
+                </DialogHeader>
+
+                <div className="grid gap-4 py-2">
+                    
+                    {/* Nome */}
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="nome" className="text-foreground font-semibold">Seu Nome Completo</Label>
+                        <Input 
+                            id="nome" 
+                            placeholder="Ex: Maria da Silva" 
+                            value={formData.nome}
+                            onChange={(e) => setFormData({...formData, nome: e.target.value})}
+                            className="bg-slate-50 border-slate-200 focus:border-primary"
+                        />
+                    </div>
+
+                    {/* Contato e Tipo (Lado a Lado no Desktop, Um abaixo do outro no Mobile) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="contato" className="text-foreground font-semibold">WhatsApp / Telefone</Label>
+                            <Input 
+                                id="contato" 
+                                placeholder="(21) 99999-9999" 
+                                value={formData.contato}
+                                onChange={(e) => setFormData({...formData, contato: e.target.value})}
+                                type="tel"
+                                className="bg-slate-50 border-slate-200 focus:border-primary"
+                            />
+                        </div>
+
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="jogo" className="text-foreground font-semibold">Tipo de Consulta</Label>
+                            <Select 
+                                value={formData.tipo_jogo} 
+                                onValueChange={(val) => setFormData({...formData, tipo_jogo: val})}
+                            >
+                                <SelectTrigger className="bg-slate-50 border-slate-200">
+                                    <SelectValue placeholder="Selecione..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="buzios_completo">Jogo de Búzios</SelectItem>
+                                    <SelectItem value="consulta_espiritual">Consulta Espiritual</SelectItem>
+                                    <SelectItem value="trabalho">Ebó / Trabalho</SelectItem>
+                                    <SelectItem value="limpeza">Limpeza</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Data */}
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="data" className="text-foreground font-semibold">Preferência de Data/Horário</Label>
+                        <Input 
+                            id="data" 
+                            type="datetime-local"
+                            value={formData.data_preferencia}
+                            onChange={(e) => setFormData({...formData, data_preferencia: e.target.value})}
+                            className="bg-slate-50 border-slate-200 focus:border-primary"
+                        />
+                    </div>
+
+                    {/* Notas */}
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="notas" className="text-muted-foreground">Observações (Opcional)</Label>
+                        <Textarea 
+                            id="notas" 
+                            placeholder="Gostaria de focar em saúde, amor, ou tem alguma dúvida específica?"
+                            value={formData.notas}
+                            onChange={(e) => setFormData({...formData, notas: e.target.value})}
+                            className="resize-none bg-slate-50 border-slate-200 focus:border-primary min-h-[80px]"
+                        />
+                    </div>
+                </div>
+
+                <DialogFooter className="mt-4 gap-2 sm:gap-0">
+                    <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleAgendar} disabled={loading} className="w-full sm:w-auto bg-primary hover:bg-sky-600 text-white font-bold">
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Solicitar Agendamento
+                    </Button>
+                </DialogFooter>
+            </>
+        )}
       </DialogContent>
     </Dialog>
   );
