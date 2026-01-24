@@ -182,7 +182,7 @@ export function AgendamentoPublico({
                     {loading ? (
                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...</>
                     ) : (
-                        'Agendar e Confirmar no Zap'
+                        'Agendar e confirmar no whatsapp'
                     )}
                 </Button>
             </DialogFooter>
