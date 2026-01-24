@@ -1,8 +1,7 @@
-"use client"
+'use client';
 
-import { useState } from "react";
-// CORREÇÃO: Importamos o cliente que você já tem configurado no projeto
-import { supabase } from "@/lib/supabase"; 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,151 +16,140 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PenTool, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { supabase } from '@/lib/supabase';
+import { PenTool, Loader2, Save } from 'lucide-react';
+// MUDANÇA: Importamos 'toast' direto da biblioteca sonner
+import { toast } from "sonner";
 
 export function NovoArtigo({ userId }: { userId: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  
-  // O 'supabase' já vem importado lá em cima, não precisamos criar ele aqui.
 
-  // Estados do formulário
-  const [titulo, setTitulo] = useState("");
-  const [conteudo, setConteudo] = useState("");
-  const [categoria, setCategoria] = useState("orixa"); 
-  const [imagemUrl, setImagemUrl] = useState("");
+  const [formData, setFormData] = useState({
+    titulo: '',
+    conteudo: '',
+    categoria: 'orixas',
+    imagem_url: ''
+  });
 
-  const gerarSlug = (texto: string) => {
-    return texto
-      .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-      .replace(/[^a-z0-9]+/g, "-") 
-      .replace(/^-+|-+$/g, ""); 
-  };
-
-  const handleSalvar = async () => {
-    if (!titulo || !conteudo) {
-      alert("Título e Conteúdo são obrigatórios!");
+  const handleSave = async () => {
+    if (!formData.titulo || !formData.conteudo) {
+      // MUDANÇA: Sintaxe do Sonner é mais simples
+      toast.error("Preencha título e conteúdo.");
       return;
     }
 
     setLoading(true);
 
-    const slug = gerarSlug(titulo);
-
     try {
-      const { error } = await supabase.from("artigos").insert({
-        titulo,
-        slug,
-        conteudo,
-        categoria,
-        imagem_url: imagemUrl,
-        autor_id: userId,
-        publicado: true
-      });
+        const slug = formData.titulo.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
-      if (error) {
-        if (error.code === "23505") { 
-            alert("Já existe uma história com este nome. Tente mudar um pouco o título.");
-        } else {
-            console.error(error);
-            alert("Erro ao salvar. Verifique se você é Admin.");
-        }
-        return;
-      }
+        const { error } = await supabase.from('artigos').insert({
+            user_id: userId,
+            titulo: formData.titulo,
+            conteudo: formData.conteudo,
+            categoria: formData.categoria,
+            imagem_url: formData.imagem_url,
+            slug: slug
+        });
 
-      setOpen(false);
-      setTitulo("");
-      setConteudo("");
-      setImagemUrl("");
-      router.refresh(); 
-      alert("História publicada com sucesso na Biblioteca!");
+        if (error) throw error;
 
-    } catch (err) {
-      console.error(err);
-      alert("Erro inesperado.");
+        // MUDANÇA: Sintaxe do Sonner
+        toast.success("Sucesso! Artigo publicado na biblioteca.");
+        
+        setOpen(false);
+        setFormData({ titulo: '', conteudo: '', categoria: 'orixas', imagem_url: '' });
+        router.refresh();
+
+    } catch (error: any) {
+        toast.error("Erro ao salvar: " + error.message);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white gap-2">
-          <PenTool size={18} />
-          Escrever História
+        <Button className="bg-primary hover:bg-sky-600 text-white font-bold gap-2 shadow-sm">
+            <PenTool size={16} /> Escrever História
         </Button>
       </DialogTrigger>
+      
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Adicionar à Biblioteca</DialogTitle>
+          <DialogTitle className="text-primary flex items-center gap-2">
+             <PenTool size={20} /> Novo Conteúdo para Biblioteca
+          </DialogTitle>
           <DialogDescription>
-            Escreva a história ou fundamento. Ela aparecerá na página pública "Doutrina".
+            Adicione histórias, itãs ou fundamentos para os filhos da casa.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="grid gap-4 py-4">
-          
           <div className="grid gap-2">
-            <Label htmlFor="titulo">Título da História</Label>
+            <Label htmlFor="titulo">Título do Artigo</Label>
             <Input 
-              id="titulo" 
-              placeholder="Ex: A Lenda de Oxóssi Caçador" 
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
+                id="titulo" 
+                value={formData.titulo} 
+                onChange={(e) => setFormData({...formData, titulo: e.target.value})}
+                placeholder="Ex: A Lenda de Oxóssi Caçador"
+                className="font-bold text-lg"
             />
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="categoria">Onde deve aparecer?</Label>
-            <Select value={categoria} onValueChange={setCategoria}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="orixa">Orixás</SelectItem>
-                <SelectItem value="entidade">Entidades / Guias</SelectItem>
-                <SelectItem value="fundamento">Fundamentos da Casa</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+             <div className="grid gap-2">
+                <Label htmlFor="categoria">Categoria</Label>
+                <Select 
+                    value={formData.categoria} 
+                    onValueChange={(val) => setFormData({...formData, categoria: val})}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="orixas">Orixás</SelectItem>
+                        <SelectItem value="fundamentos">Fundamentos</SelectItem>
+                        <SelectItem value="historia">História da Casa</SelectItem>
+                        <SelectItem value="avisos">Avisos</SelectItem>
+                    </SelectContent>
+                </Select>
+             </div>
+             
+             <div className="grid gap-2">
+                <Label htmlFor="img">URL da Imagem (Capa)</Label>
+                <Input 
+                    id="img" 
+                    value={formData.imagem_url} 
+                    onChange={(e) => setFormData({...formData, imagem_url: e.target.value})}
+                    placeholder="https://..."
+                />
+             </div>
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="img">Link da Imagem (Opcional)</Label>
-            <Input 
-              id="img" 
-              placeholder="https://..." 
-              value={imagemUrl}
-              onChange={(e) => setImagemUrl(e.target.value)}
+            <Label htmlFor="conteudo">Conteúdo (Texto)</Label>
+            <Textarea 
+                id="conteudo" 
+                value={formData.conteudo} 
+                onChange={(e) => setFormData({...formData, conteudo: e.target.value})}
+                placeholder="Escreva aqui o conhecimento..."
+                className="min-h-[200px]"
             />
-            <p className="text-xs text-slate-500">
-                Dica: Copie o endereço da imagem que você subiu na aba "Arquivos da Casa".
+            <p className="text-xs text-muted-foreground">
+                Dica: Você pode usar tags HTML simples como &lt;b&gt;, &lt;p&gt; se souber.
             </p>
           </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="conteudo">Texto Completo</Label>
-            <Textarea 
-              id="conteudo" 
-              placeholder="Digite aqui toda a história, itã ou explicação..." 
-              className="min-h-[200px]"
-              value={conteudo}
-              onChange={(e) => setConteudo(e.target.value)}
-            />
-          </div>
-
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSalvar} disabled={loading} className="bg-green-600 hover:bg-green-700">
-            {loading ? <Loader2 className="animate-spin h-4 w-4 mr-2"/> : null}
-            Publicar Agora
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={loading} className="bg-primary hover:bg-sky-600 text-white font-bold">
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Publicar
           </Button>
         </DialogFooter>
       </DialogContent>

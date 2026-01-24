@@ -1,4 +1,4 @@
-'use client'; // Importante para formulários interativos
+'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from '@/lib/supabase';
-// O erro do Loader2 foi corrigido aqui:
 import { Loader2, Lock } from 'lucide-react';
 
 export default function LoginPage() {
@@ -34,8 +33,6 @@ export default function LoginPage() {
         throw error;
       }
 
-      // --- CORREÇÃO DE FLUXO ---
-      // Antes estava indo para '/', agora vai direto para o Dashboard
       router.push('/dashboard');
       router.refresh(); 
 
@@ -47,8 +44,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <Card className="w-full max-w-md border-t-4 border-t-primary shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-md border-t-4 border-t-primary shadow-2xl bg-white">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
             <Image 
@@ -82,13 +79,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="border-input focus:border-primary"
               />
             </div>
             
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Senha</Label>
-                <Link href="/esqueci-senha" className="text-xs text-primary hover:underline">
+                <Link href="/esqueci-senha" className="text-xs text-primary hover:underline font-medium">
                   Esqueceu a senha?
                 </Link>
               </div>
@@ -98,20 +96,21 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="border-input focus:border-primary"
               />
             </div>
           </CardContent>
           
           <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full bg-primary hover:bg-primary/90" type="submit" disabled={loading}>
+            <Button className="w-full bg-primary hover:bg-sky-600 text-white font-bold h-11" type="submit" disabled={loading}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
               Entrar no Sistema
             </Button>
             
-            <p className="text-xs text-center text-slate-500">
+            <p className="text-xs text-center text-muted-foreground">
               Não tem acesso? Fale com a administração da casa.
               <br/>
-              <Link href="/" className="text-primary hover:underline mt-2 inline-block">
+              <Link href="/" className="text-primary hover:underline mt-2 inline-block font-medium">
                 ← Voltar para o site
               </Link>
             </p>

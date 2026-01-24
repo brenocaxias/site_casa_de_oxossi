@@ -1,22 +1,29 @@
 import './globals.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+// MUDANÇA: Importamos do arquivo que acabamos de criar, não de 'components/ui/toaster'
+import { Toaster } from "@/components/ui/sonner" 
 
 const inter = Inter({ subsets: ['latin'] })
 
 const baseUrl = 'https://www.egbelajo-odeigbo.com.br'
 
+export const viewport: Viewport = {
+  themeColor: '#38b4e3',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
-  
   title: {
     default: "Ilè Asé Ègbé L'ajò Odé Igbò | Casa de Oxóssi RJ",
     template: "%s | Ilè Asé Ègbé L'ajò"
   },
-  
-  description: 'Terreiro de Candomblé e Culto aos Orixás em Piedade/Encantado, RJ. Agende Jogo de Búzios, Trabalhos Espirituais e conheça nossa doutrina.',
-  
-  keywords: [
+  description: 'Terreiro de Candomblé e Culto aos Orixás em Piedade/Encantado, RJ.',
+  manifest: '/manifest.json',
+  keywords:[
     'Candomblé', 'Jogo de Búzios', 'Terreiro RJ', 'Piedade', 'Encantado',
     'Ilè Asé Ègbé L ajò', 'Pai de Santo', 'Trabalhos Espirituais', 
     'Amarração', 'Limpeza Espiritual', 'Odé Igbò', 'Orixás', 'ile ase', 'casa de axé oxóssi',
@@ -33,57 +40,30 @@ export const metadata: Metadata = {
     'casa de axé encantado rj', 'casa de axé rio de janeiro', 'casa de axé famosa', 'casa de axé boa em piedade rj',
     'casa de axé poderosa rj', 'casa de axé poderosa em piedade rio de janeiro', 'casa de oxóssi groaíras filial rj',
     'casa', 'axé', 'rio de janeiro', 'rj', 'piedade', 'encantado', 'macumba', 'búzios', 'orixá de cabeça',
-    'quem é meu guia?', 'qual é minha pombogira?', 'como saber meu exu e minha pombogira'
+    'quem é meu guia?', 'qual é minha pombogira?', 'como saber meu exu e minha pombogira', 'terreiro candomblé piedade rj'
   ],
-  // --- ADICIONE ESTE BLOCO ABAIXO ---
   icons: {
-    icon: '/icon.png',      // Ícone padrão do navegador
-    shortcut: '/icon.png',  // Atalho
-    apple: '/icon.png',     // Ícone para iPhone/iPad
-    other: {
-      rel: 'apple-touch-icon-precomposed',
-      url: '/icon.png',
-    },
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+    other: { rel: 'apple-touch-icon-precomposed', url: '/icon.png' },
   },
-  // ---------------------------------
-  
   authors: [{ name: 'Ilè Asé Ègbé L ajò' }],
   creator: 'Ilè Asé Ègbé L ajò',
-  
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     url: baseUrl,
     siteName: "Ilè Asé Ègbé L'ajò Odé Igbò",
     title: "Ilè Asé Ègbé L'ajò Odé Igbò- Casa de Oxóssi RJ",
-    description: 'Tradição, Fé e Ancestralidade. Agende sua consulta de Búzios.',
-    images: [
-      {
-        url: '/icon.png',
-        width: 1200,
-        height: 630,
-        alt: 'Fachada do Ilè Asé Ègbé L ajò',
-      },
-    ],
+    description: 'Tradição, Fé e Ancestralidade.',
+    images: [{ url: '/icon.png', width: 1200, height: 630, alt: 'Fachada do Ilè Asé Ègbé L ajò' }],
   },
-  
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
-
-  // --- ÁREA NOVA PARA COLAR O CÓDIGO DO GOOGLE ---
   verification: {
-    // Quando o Google Search Console te der o código HTML,
-    // ele será algo como: <meta name="google-site-verification" content="XYZ123..." />
-    // Você pega SÓ O CÓDIGO (o que está dentro das aspas do content) e cola aqui:
     google: 'PYXwnab2HHytdtUE31gd59iJR2Yc',
   },
 }
@@ -95,7 +75,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <Toaster />
+      </body>
     </html>
   )
 }

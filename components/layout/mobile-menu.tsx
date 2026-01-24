@@ -10,22 +10,22 @@ export function MobileMenu() {
 
   return (
     <>
-      {/* Botão de Abrir/Fechar (Só aparece no mobile) */}
+      {/* Botão de Abrir/Fechar */}
       <button 
-        className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
+        className="md:hidden p-2 text-muted-foreground hover:bg-muted rounded-md transition-colors"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Abrir menu"
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isOpen ? <X size={24} className="text-primary" /> : <Menu size={24} />}
       </button>
 
       {/* O Dropdown do Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b shadow-xl animate-in slide-in-from-top-5 duration-200">
+        <div className="md:hidden absolute top-16 left-0 w-full bg-white/95 backdrop-blur-md border-b border-border shadow-xl animate-in slide-in-from-top-5 duration-200 z-50">
           <nav className="flex flex-col p-4 gap-4 text-center">
             <Link 
               href="/" 
-              className="p-3 hover:bg-slate-50 rounded-lg text-slate-700 font-medium"
+              className="p-3 hover:bg-sky-50 hover:text-primary rounded-lg text-foreground font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
               Início
@@ -33,7 +33,7 @@ export function MobileMenu() {
             
             <Link 
               href="/historia" 
-              className="p-3 hover:bg-slate-50 rounded-lg text-slate-700 font-medium"
+              className="p-3 hover:bg-sky-50 hover:text-primary rounded-lg text-foreground font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
               Nossa História
@@ -41,14 +41,14 @@ export function MobileMenu() {
 
             <Link 
               href="/doutrina" 
-              className="p-3 hover:bg-slate-50 rounded-lg text-slate-700 font-medium"
+              className="p-3 hover:bg-sky-50 hover:text-primary rounded-lg text-foreground font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
               Doutrina & Fundamentos
             </Link>
             
             <Link href="/dashboard" onClick={() => setIsOpen(false)}>
-              <Button className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded-full">
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-sky-600 rounded-full font-bold shadow-lg">
                 Acessar Área do Filho
               </Button>
             </Link>
