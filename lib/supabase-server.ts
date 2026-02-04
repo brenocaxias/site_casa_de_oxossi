@@ -1,7 +1,8 @@
-import { createServerClient } from '@supabase/ssr'
+// lib/supabase-server.ts
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export async function createServerSideClient() {
+export async function createClient() { // Certifique-se de que o nome é 'createClient'
   const cookieStore = await cookies()
 
   return createServerClient(
@@ -9,16 +10,21 @@ export async function createServerSideClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll()
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-        setAll(cookiesToSet) {
+        set(name: string, value: string, options: CookieOptions) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // Ocorreu um erro ao tentar definir cookies num Server Component (normal, ignorar)
+            cookieStore.set({ name, value, ...options })
+          } catch (error) {
+            // O tratamento de cookies aqui é necessário para Server Actions
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch (error) {
+            // O tratamento de cookies aqui é necessário para Server Actions
           }
         },
       },

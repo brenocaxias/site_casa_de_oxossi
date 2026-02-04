@@ -1,76 +1,81 @@
-'use server';
+'use server'
 
-import { createClient } from '@supabase/supabase-js';
-import { z } from 'zod';
+import { createClient } from '@/lib/supabase-server'
+import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
+
+// Esquema de validação apenas com os 3 campos que usas
 const schemaCadastro = z.object({
   email: z.string().email("E-mail inválido."),
   senha: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
   nome: z.string().min(3, "O nome deve ter no mínimo 3 caracteres."),
-  telefone: z.string().nullable().optional(), // ADICIONE O .nullable() AQUI
-});
+  // Telefone definido como opcional e aceitando null para evitar o erro de validação
+  telefone: z.string().nullable().optional(),
+})
 
 export async function cadastrarFilho(formData: FormData) {
+  // CORREÇÃO: Chame a função corretamente
+  const supabase = await createClient()
+
+  // Captura apenas o que vem do form
   const rawData = {
     email: formData.get('email'),
     senha: formData.get('senha'),
     nome: formData.get('nome'),
-    telefone: formData.get('telefone'),
-  };
-
-  const validacao = schemaCadastro.safeParse(rawData);
-
-  if (!validacao.success) {
-    // CORREÇÃO AQUI: Mudamos de .errors para .issues
-    return { 
-      error: validacao.error.issues[0].message 
-    };
+    telefone: null, // Como não tens no form, garantimos que vai como null
   }
 
-  const { email, senha, nome, telefone } = validacao.data;
+  const validacao = schemaCadastro.safeParse(rawData)
 
-  // Cliente Admin (Service Role)
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!, 
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false 
-      }
-    }
-  );
+  if (!validacao.success) {
+    return { error: validacao.error.issues[0].message }
+  }
+
+  const { email, senha, nome, telefone } = validacao.data
 
   try {
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    // 1. Criar utilizador no Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password: senha,
       email_confirm: true,
-      user_metadata: { nome }
-    });
+      user_metadata: { full_name: nome }
+    })
 
-    if (authError) throw new Error(authError.message);
-    if (!authData.user) throw new Error("Erro ao criar usuário.");
+    // Se o erro for de utilizador já existente, avisamos logo
+    if (authError) {
+      if (authError.message.includes("already been registered")) {
+        return { error: "Este e-mail já está registado no sistema." }
+      }
+      throw authError
+    }
 
-    const { error: dbError } = await supabaseAdmin
+    if (!authData.user) throw new Error("Erro ao criar utilizador no Auth.")
+
+    // 2. Inserir na tabela 'filhos'
+    const { error: dbError } = await supabase
       .from('filhos')
       .insert({
         id: authData.user.id,
         nome,
         email,
-        telefone,
-        data_cadastro: new Date().toISOString(),
-      });
+        telefone, // Vai como null sem quebrar o Zod
+        role: 'filho'
+      })
 
     if (dbError) {
-      console.error("Erro no banco:", dbError);
-      throw new Error("Usuário criado, mas erro ao salvar perfil.");
+      // Opcional: Se falhar aqui, podes apagar o utilizador do Auth para permitir tentar de novo
+      // await supabase.auth.admin.deleteUser(authData.user.id)
+      console.error("Erro na BD:", dbError)
+      return { error: "Utilizador criado, mas erro ao guardar perfil. Contacte o suporte." }
     }
 
-    return { success: "Filho de santo cadastrado com sucesso!" };
+    revalidatePath('/dashboard')
+    return { success: true }
 
   } catch (error: any) {
-    console.error("Erro no cadastro:", error);
-    return { error: error.message || "Erro interno ao cadastrar." };
+    console.error("Erro geral:", error)
+    return { error: error.message || "Erro interno ao cadastrar." }
   }
 }
