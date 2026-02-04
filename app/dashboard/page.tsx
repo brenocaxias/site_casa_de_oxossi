@@ -1,12 +1,12 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link'; // Importado para navegação
+import Link from 'next/link';
 import { createServerSideClient } from '@/lib/supabase-server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   Folder, FileText, Image as ImageIcon, Calendar, Download, 
-  Smartphone, User, Music, ShieldAlert, Settings // Settings adicionado
+  Smartphone, User, Music, ShieldAlert, Settings, Users // Adicionado Users
 } from 'lucide-react';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { NovoAgendamento } from '@/components/dashboard/novo-agendamento';
@@ -17,6 +17,7 @@ import { BotaoAlterarSenha } from '@/components/dashboard/botao-alterar-senha';
 import { NovoArtigo } from '@/components/dashboard/novo-artigo';
 import { ListaArtigos } from '@/components/dashboard/lista-artigos';
 import { AtualizarOdu } from '@/components/dashboard/atualizar-odu';
+import { ListaFilhos } from '@/components/dashboard/lista-filhos'; // Certifique-se de criar este componente
 import { Button } from '@/components/ui/button';
 
 const formatDate = (dateString: string) => {
@@ -40,25 +41,26 @@ export default async function DashboardPage() {
 
   const isAdmin = perfil?.role === 'admin';
 
-  // LÓGICA DE NOME: Tenta perfil do banco, depois metadata do auth, depois email, depois fallback
+  // LÓGICA DE NOME
   const nomeExibicao = perfil?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Filho de Fé';
 
-  // BUSCA TUDO AO MESMO TEMPO
-  const [meusAgendamentosRes, arquivosRes, todosAgendamentosRes, todosArtigosRes] = await Promise.all([
+  // BUSCA TUDO AO MESMO TEMPO (Adicionado busca de perfis para Admin)
+  const [meusAgendamentosRes, arquivosRes, todosAgendamentosRes, todosArtigosRes, todosFilhosRes] = await Promise.all([
     supabase.from('agendamentos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     supabase.from('arquivos_casa').select('*').order('created_at', { ascending: false }),
     isAdmin ? supabase.from('agendamentos').select('*').order('created_at', { ascending: false }) : Promise.resolve({ data: [] }),
-    isAdmin ? supabase.from('artigos').select('*').order('created_at', { ascending: false }) : Promise.resolve({ data: [] })
+    isAdmin ? supabase.from('artigos').select('*').order('created_at', { ascending: false }) : Promise.resolve({ data: [] }),
+    isAdmin ? supabase.from('profiles').select('*').order('full_name', { ascending: true }) : Promise.resolve({ data: [] })
   ]);
 
   const meusAgendamentos = meusAgendamentosRes.data || [];
   const arquivosReais = arquivosRes.data || [];
   const todosAgendamentos = todosAgendamentosRes.data || [];
   const todosArtigos = todosArtigosRes.data || [];
+  const todosFilhos = todosFilhosRes.data || [];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* HEADER COM GRADIENTE TURQUESA */}
       <header className="bg-gradient-to-r from-primary to-sky-600 border-b border-primary/20 sticky top-0 z-10 shadow-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between text-white">
           <div className="font-bold text-xl flex items-center gap-2">
@@ -72,18 +74,12 @@ export default async function DashboardPage() {
             </div>
 
             <div className="flex gap-2">
-                {/* BOTÃO DE PERFIL ADICIONADO AQUI */}
                 <Link href="/dashboard/perfil">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-white hover:bg-white/20 border border-white/30 gap-2"
-                  >
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 border border-white/30 gap-2">
                     <Settings size={16} />
                     <span className="hidden sm:inline">Perfil</span>
                   </Button>
                 </Link>
-
                 <BotaoAlterarSenha />
                 <SignOutButton />
             </div>
@@ -101,23 +97,19 @@ export default async function DashboardPage() {
           
           <TabsList className="mb-6 w-full h-auto flex flex-wrap justify-center gap-2 bg-white p-2 border border-slate-200 rounded-xl shadow-sm">
             {isAdmin && (
-                <TabsTrigger 
-                    value="admin" 
-                    className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white font-bold"
-                >
+                <TabsTrigger value="admin" className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white font-bold">
                     Painel do Bàbá
                 </TabsTrigger>
             )}
-            <TabsTrigger 
-                value="arquivos" 
-                className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
+            {isAdmin && (
+                <TabsTrigger value="filhos" className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white">
+                    👥 Filhos da Casa
+                </TabsTrigger>
+            )}
+            <TabsTrigger value="arquivos" className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white">
                 📂 Arquivos da Casa
             </TabsTrigger>
-            <TabsTrigger 
-                value="agendamentos" 
-                className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
+            <TabsTrigger value="agendamentos" className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white">
                 📅 Meus Agendamentos
             </TabsTrigger>
           </TabsList>
@@ -130,10 +122,9 @@ export default async function DashboardPage() {
                         <CardTitle className="text-primary flex items-center gap-2 text-2xl">
                             <User className="h-6 w-6 text-secondary"/> Gestão da Casa
                         </CardTitle>
-                        <CardDescription>Gerencie atendimentos, conteúdo e filhos da casa.</CardDescription>
+                        <CardDescription>Gerencie atendimentos, conteúdo e odu.</CardDescription>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                          <CadastroFilho />
                           <NovoArtigo userId={user.id} />
                           <AtualizarOdu userId={user.id} />
                       </div>
@@ -182,13 +173,25 @@ export default async function DashboardPage() {
                     )}
                   </CardContent>
               </Card>
-
               <ListaArtigos artigos={todosArtigos} />
-
             </TabsContent>
            )}
 
-          {/* ... Restante das TabsContent permanece igual ao seu código ... */}
+           {isAdmin && (
+            <TabsContent value="filhos" className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <Users className="text-primary" /> Membros Cadastrados
+                        </h3>
+                        <p className="text-sm text-slate-500">Visualize, edite ou remova o acesso dos filhos da casa.</p>
+                    </div>
+                    <CadastroFilho />
+                </div>
+                <ListaFilhos filhos={todosFilhos} />
+            </TabsContent>
+           )}
+
           <TabsContent value="arquivos" className="animate-in fade-in slide-in-from-bottom-2">
               <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                 <div>

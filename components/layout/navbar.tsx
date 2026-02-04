@@ -19,7 +19,7 @@ export function Navbar() {
                 className="h-10 w-auto md:h-12 object-contain group-hover:scale-105 transition-transform"
             />
             <span className="font-bold text-lg md:text-xl text-foreground truncate max-w-[200px] md:max-w-none group-hover:text-primary transition-colors">
-                Ilè Asé Ègbé L'ajò Odé Igbò
+                Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò
             </span>
           </Link>
         </div>
