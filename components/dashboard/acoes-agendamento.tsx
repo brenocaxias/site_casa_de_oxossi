@@ -10,79 +10,119 @@ interface AcoesProps {
   status: string
   telefone?: string
   nome?: string
-  data?: string
+  data?: string // Esta data vem do banco de dados
 }
 
 export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProps) {
   const [loading, setLoading] = useState(false)
+
+  // Formata a data ISO do banco para o padrão brasileiro (DD/MM/AAAA HH:mm)
+  const formatarDataBr = (dataIso?: string) => {
+    if (!dataIso) return 'a combinar'
+    try {
+      const d = new Date(dataIso)
+      return d.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch {
+      return 'a combinar'
+    }
+  }
+
+  const formatarWhatsapp = (num: string) => {
+    let limpo = num.replace(/\D/g, '')
+    if (limpo.length <= 11 && limpo.length > 0) {
+      return `55${limpo}`
+    }
+    return limpo
+  }
+
+  const abrirWhatsapp = (numero: string, mensagem: string) => {
+    const texto = encodeURIComponent(mensagem);
+    
+    // Protocolo whatsapp:// costuma forçar o celular a perguntar qual app usar (Pessoal ou Business)
+    const urlApp = `whatsapp://send?phone=${numero}&text=${texto}`;
+    const urlWeb = `https://wa.me/${numero}?text=${texto}`;
+
+    // Tenta abrir o protocolo do app primeiro
+    const lancar = window.open(urlApp, '_self');
+    
+    // Fallback caso o protocolo de app falhe ou não seja suportado
+    setTimeout(() => {
+        if (!lancar || lancar.closed) {
+            window.open(urlWeb, '_blank');
+        }
+    }, 500);
+  }
 
   const handleStatus = async (novoStatus: 'confirmado' | 'cancelado') => {
     if (loading) return
     setLoading(true)
 
     try {
-        // 1. Atualiza no Banco
-        await atualizarStatusAgendamento(id, novoStatus)
+      await atualizarStatusAgendamento(id, novoStatus)
 
-        // 2. Se for confirmado, prepara o WhatsApp
-        if (novoStatus === 'confirmado') {
-            
-            // Verifica se tem telefone
-            if (!telefone) {
-                alert("Agendamento confirmado! (Mas o cliente não cadastrou telefone para contato).")
-                return
-            }
-
-            // Limpa o número (remove ( ) - e espaços)
-            let numeroLimpo = telefone.replace(/\D/g, '')
-
-            // Se o número for curto (ex: 11999999999 - 11 digitos), adiciona o 55 do Brasil
-            if (numeroLimpo.length <= 11) {
-                numeroLimpo = `55${numeroLimpo}`
-            }
-
-            // Cria a mensagem focada em PAGAMENTO/CONFIRMAÇÃO
-            const texto = `Olá ${nome || 'Filho de Fé'}! 🕊️\n\nRecebemos sua solicitação de agendamento para *${data}*.\n\nPosso agendar essa data e horário?\n\nComo prefere prosseguir?`
-            
-            // Transforma o texto para URL
-            const mensagemCodificada = encodeURIComponent(texto)
-            const linkZap = `https://wa.me/${numeroLimpo}?text=${mensagemCodificada}`
-            
-            // Abre o WhatsApp
-            window.open(linkZap, '_blank')
-        }
-
+      if (novoStatus === 'confirmado' && telefone) {
+        const numeroLimpo = formatarWhatsapp(telefone)
+        const dataLeitura = formatarDataBr(data)
+        
+        const mensagem = `Olá ${nome || 'Filho de Fé'}! 🕊️\n\nRecebemos sua solicitação de agendamento para o dia *${dataLeitura}*.\n\nPodemos confirmar este horário?`
+        
+        abrirWhatsapp(numeroLimpo, mensagem)
+      }
     } catch (error) {
-        console.error("Erro:", error)
-        alert("Erro ao atualizar o status.")
+      console.error("Erro ao atualizar agendamento:", error)
+      alert("Erro ao processar a solicitação.")
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
   }
 
-  if (status !== 'pendente') return null
-
   return (
-    <div className="flex gap-2">
-      <Button 
-        size="sm" 
-        className="bg-green-600 hover:bg-green-700 text-white"
-        onClick={() => handleStatus('confirmado')}
-        disabled={loading}
-        title="Aprovar e Ir para WhatsApp"
-      >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <div className="flex items-center gap-1"><Check className="h-4 w-4" /> <MessageCircle className="h-3 w-3" /></div>}
-      </Button>
-      
-      <Button 
-        size="sm" 
-        variant="destructive"
-        onClick={() => handleStatus('cancelado')}
-        disabled={loading}
-        title="Recusar Pedido"
-      >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
-      </Button>
+    <div className="flex items-center gap-2">
+      {status === 'pendente' && (
+        <>
+          <Button 
+            size="sm" 
+            className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={() => handleStatus('confirmado')}
+            disabled={loading}
+            title="Aprovar e avisar cliente"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+          </Button>
+          
+          <Button 
+            size="sm" 
+            variant="destructive"
+            onClick={() => handleStatus('cancelado')}
+            disabled={loading}
+            title="Recusar agendamento"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+          </Button>
+        </>
+      )}
+
+      {telefone && (
+        <Button 
+          size="sm" 
+          variant="outline"
+          className="border-sky-500 text-sky-600 hover:bg-sky-50"
+          onClick={() => {
+            const numero = formatarWhatsapp(telefone)
+            const dataLeitura = formatarDataBr(data)
+            abrirWhatsapp(numero, `Olá! Gostaria de falar sobre seu agendamento de *${dataLeitura}*.`)
+          }}
+          title="Conversar manualmente"
+        >
+          <MessageCircle className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   )
 }

@@ -15,13 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from '@/lib/supabase';
-import { Calendar, Loader2, CheckCircle2, Shell } from 'lucide-react';
+import { Loader2, CheckCircle2, Shell } from 'lucide-react';
 import { toast } from "sonner";
 
 interface AgendamentoPublicoProps {
   className?: string;
   textoBotao?: string;
-  jogoPreSelecionado?: string; // Mantido para compatibilidade, mas ignorado na UI
+  jogoPreSelecionado?: string; 
 }
 
 export function AgendamentoPublico({ 
@@ -36,13 +36,12 @@ export function AgendamentoPublico({
   const [formData, setFormData] = useState({
     nome: '',
     contato: '',
-    tipo_jogo: 'buzios_completo', // Fixo: Único tipo disponível
+    tipo_jogo: 'buzios_completo', 
     data_preferencia: '',
     notas: ''
   });
 
   const handleAgendar = async () => {
-    // Validação básica
     if (!formData.nome || !formData.contato) {
       toast.error("Por favor, preencha nome e contato.");
       return;
@@ -54,7 +53,7 @@ export function AgendamentoPublico({
         const { error } = await supabase.from('agendamentos').insert({
             cliente_nome: formData.nome,
             cliente_contato: formData.contato,
-            tipo_jogo: formData.tipo_jogo, // Envia 'buzios_completo' automaticamente
+            tipo_jogo: formData.tipo_jogo,
             data_agendamento: formData.data_preferencia ? new Date(formData.data_preferencia).toISOString() : null,
             notas: formData.notas,
             status: 'pendente'
@@ -64,6 +63,24 @@ export function AgendamentoPublico({
 
         setSucesso(true);
         toast.success("Solicitação enviada com sucesso!");
+
+        // --- LÓGICA DE REDIRECIONAMENTO PARA WHATSAPP ---
+        const telefonePaiDeSanto = "5521969690953"; // Extraído dos metadados do site
+        const dataAmigavel = formData.data_preferencia 
+            ? new Date(formData.data_preferencia).toLocaleString('pt-BR') 
+            : 'A combinar';
+
+        const mensagem = encodeURIComponent(
+            `Axé! Realizei um agendamento pelo site e gostaria de confirmar.\n\n` +
+            `*Nome:* ${formData.nome}\n` +
+            `*Serviço:* Jogo de Búzios\n` +
+            `*Data sugerida:* ${dataAmigavel}`
+        );
+        
+        const whatsappUrl = `https://wa.me/${telefonePaiDeSanto}?text=${mensagem}`;
+        
+        // Tenta abrir o WhatsApp automaticamente
+        window.open(whatsappUrl, '_blank');
 
     } catch (error: any) {
         console.error(error);
@@ -96,7 +113,6 @@ export function AgendamentoPublico({
         </Button>
       </DialogTrigger>
       
-      {/* Layout Mobile Otimizado (max-h-90vh + scroll) */}
       <DialogContent className="max-h-[90vh] overflow-y-auto w-[95%] sm:max-w-md rounded-xl p-5">
         
         {sucesso ? (
@@ -106,11 +122,16 @@ export function AgendamentoPublico({
                 </div>
                 <DialogTitle className="text-2xl font-bold text-green-700">Pedido Recebido!</DialogTitle>
                 <p className="text-muted-foreground">
-                    Sua solicitação para o <strong>Jogo de Búzios</strong> foi enviada. 
-                    <br/>Em breve entraremos em contato para confirmar o horário.
+                    Sua solicitação foi enviada. Clique no botão abaixo caso a janela do WhatsApp não tenha aberto.
                 </p>
-                <Button onClick={resetForm} className="mt-4 bg-green-600 hover:bg-green-700 text-white w-full font-bold">
-                    Entendido, Axé!
+                <Button 
+                    onClick={() => {
+                        const msg = encodeURIComponent(`Axé! Sou ${formData.nome} e agendei uma consulta pelo site.`);
+                        window.location.href = `https://wa.me/5521969690953?text=${msg}`;
+                    }} 
+                    className="mt-4 bg-green-600 hover:bg-green-700 text-white w-full font-bold"
+                >
+                    Confirmar no WhatsApp
                 </Button>
             </div>
         ) : (
@@ -125,8 +146,6 @@ export function AgendamentoPublico({
                 </DialogHeader>
 
                 <div className="grid gap-4 py-2">
-                    
-                    {/* Nome */}
                     <div className="grid gap-1.5">
                         <Label htmlFor="nome" className="text-foreground font-semibold">Seu Nome Completo</Label>
                         <Input 
@@ -134,11 +153,10 @@ export function AgendamentoPublico({
                             placeholder="Ex: Maria da Silva" 
                             value={formData.nome}
                             onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                            className="bg-slate-50 border-slate-200 focus:border-primary"
+                            className="bg-slate-50 border-slate-200"
                         />
                     </div>
 
-                    {/* Contato (Agora largura total) */}
                     <div className="grid gap-1.5">
                         <Label htmlFor="contato" className="text-foreground font-semibold">WhatsApp / Telefone</Label>
                         <Input 
@@ -147,11 +165,10 @@ export function AgendamentoPublico({
                             value={formData.contato}
                             onChange={(e) => setFormData({...formData, contato: e.target.value})}
                             type="tel"
-                            className="bg-slate-50 border-slate-200 focus:border-primary"
+                            className="bg-slate-50 border-slate-200"
                         />
                     </div>
 
-                    {/* Data */}
                     <div className="grid gap-1.5">
                         <Label htmlFor="data" className="text-foreground font-semibold">Preferência de Data/Horário</Label>
                         <Input 
@@ -159,19 +176,18 @@ export function AgendamentoPublico({
                             type="datetime-local"
                             value={formData.data_preferencia}
                             onChange={(e) => setFormData({...formData, data_preferencia: e.target.value})}
-                            className="bg-slate-50 border-slate-200 focus:border-primary"
+                            className="bg-slate-50 border-slate-200"
                         />
                     </div>
 
-                    {/* Notas */}
                     <div className="grid gap-1.5">
                         <Label htmlFor="notas" className="text-muted-foreground">Observações (Opcional)</Label>
                         <Textarea 
                             id="notas" 
-                            placeholder="Gostaria de focar em saúde, amor, ou tem alguma dúvida específica?"
+                            placeholder="Tem alguma dúvida específica?"
                             value={formData.notas}
                             onChange={(e) => setFormData({...formData, notas: e.target.value})}
-                            className="resize-none bg-slate-50 border-slate-200 focus:border-primary min-h-[80px]"
+                            className="resize-none bg-slate-50 border-slate-200 min-h-[80px]"
                         />
                     </div>
                 </div>
@@ -180,7 +196,7 @@ export function AgendamentoPublico({
                     <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
                         Cancelar
                     </Button>
-                    <Button onClick={handleAgendar} disabled={loading} className="w-full sm:w-auto bg-primary hover:bg-sky-600 text-white font-bold">
+                    <Button onClick={handleAgendar} disabled={loading} className="w-full sm:w-auto bg-primary text-white font-bold">
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Confirmar Agendamento
                     </Button>
