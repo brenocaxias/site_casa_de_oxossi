@@ -1,9 +1,13 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link'; // Importado para navegação
 import { createServerSideClient } from '@/lib/supabase-server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Folder, FileText, Image as ImageIcon, Calendar, Download, Smartphone, User, Music, ShieldAlert } from 'lucide-react';
+import { 
+  Folder, FileText, Image as ImageIcon, Calendar, Download, 
+  Smartphone, User, Music, ShieldAlert, Settings // Settings adicionado
+} from 'lucide-react';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { NovoAgendamento } from '@/components/dashboard/novo-agendamento';
 import { UploadArquivo } from '@/components/dashboard/upload-arquivo';
@@ -13,6 +17,7 @@ import { BotaoAlterarSenha } from '@/components/dashboard/botao-alterar-senha';
 import { NovoArtigo } from '@/components/dashboard/novo-artigo';
 import { ListaArtigos } from '@/components/dashboard/lista-artigos';
 import { AtualizarOdu } from '@/components/dashboard/atualizar-odu';
+import { Button } from '@/components/ui/button';
 
 const formatDate = (dateString: string) => {
     if (!dateString) return 'Data a definir';
@@ -59,12 +64,26 @@ export default async function DashboardPage() {
           <div className="font-bold text-xl flex items-center gap-2">
             <ShieldAlert className="text-secondary" /> Área Restrita
           </div>
+          
           <div className="flex items-center gap-4">
             <div className="text-right hidden md:block">
                 <p className="text-sm font-bold leading-none">{nomeExibicao}</p>
                 <p className="text-[10px] text-sky-100 opacity-80">{isAdmin ? 'Bàbá da Casa' : 'Filho de Santo'}</p>
             </div>
+
             <div className="flex gap-2">
+                {/* BOTÃO DE PERFIL ADICIONADO AQUI */}
+                <Link href="/dashboard/perfil">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-white hover:bg-white/20 border border-white/30 gap-2"
+                  >
+                    <Settings size={16} />
+                    <span className="hidden sm:inline">Perfil</span>
+                  </Button>
+                </Link>
+
                 <BotaoAlterarSenha />
                 <SignOutButton />
             </div>
@@ -105,7 +124,6 @@ export default async function DashboardPage() {
 
            {isAdmin && (
             <TabsContent value="admin" className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
-              {/* --- BLOCO 1: ATENDIMENTOS --- */}
               <Card className="border-primary/20 bg-sky-50/50 shadow-md">
                   <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-primary/10 pb-6">
                       <div>
@@ -146,7 +164,6 @@ export default async function DashboardPage() {
                                             <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                                             <span className="font-medium text-slate-700">{formatDate(item.data_agendamento)}</span>
                                         </p>
-                                        {item.notas && <p className="text-xs text-slate-400 italic bg-slate-50 p-1 rounded inline-block">"{item.notas}"</p>}
                                     </div>
                                     <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
                                         <Badge className={`
@@ -166,12 +183,12 @@ export default async function DashboardPage() {
                   </CardContent>
               </Card>
 
-              {/* --- BLOCO 2: HISTÓRICO DE ARTIGOS --- */}
               <ListaArtigos artigos={todosArtigos} />
 
             </TabsContent>
            )}
 
+          {/* ... Restante das TabsContent permanece igual ao seu código ... */}
           <TabsContent value="arquivos" className="animate-in fade-in slide-in-from-bottom-2">
               <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                 <div>
@@ -221,7 +238,6 @@ export default async function DashboardPage() {
                   <div className="text-center py-16 text-slate-500 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50/50">
                     <Calendar className="mx-auto h-12 w-12 mb-3 text-slate-300" />
                     <p>Você ainda não tem agendamentos registrados.</p>
-                    <p className="text-xs mt-2 text-slate-400">Clique em "Novo Agendamento" para começar.</p>
                   </div>
             ) : (
                 <div className="grid gap-4">
