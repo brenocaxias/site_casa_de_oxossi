@@ -3,31 +3,35 @@
 import { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Trash2, User, Mail, MoreHorizontal } from 'lucide-react'
+import { Trash2, User, Loader2 } from 'lucide-react'
 import { excluirFilho } from '@/app/actions/gerenciar-filhos'
+import { EditarFilho } from '@/components/dashboard/editar-filho' // Importando o novo componente
 import { toast } from "sonner"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 
 export function ListaFilhos({ filhos }: { filhos: any[] }) {
-  const [loading, setLoading] = useState<string | null>(null)
+  const [loadingId, setLoadingId] = useState<string | null>(null)
 
-  const handleExcluir = async (id: string) => {
-    setLoading(id)
-    const res = await excluirFilho(id)
-    setLoading(null)
+  const handleExcluir = async (id: string, nome: string) => {
+    // Substituímos o AlertDialog pelo confirm nativo para evitar erro de compilação
+    const confirmacao = window.confirm(
+      `Tem certeza que deseja remover ${nome} da casa? Esta ação não pode ser desfeita.`
+    )
+    
+    if (!confirmacao) return
 
-    if (res.error) toast.error(res.error)
-    else toast.success("Membro removido da casa.")
+    setLoadingId(id)
+    try {
+      const res = await excluirFilho(id)
+      if (res.error) {
+        toast.error(res.error)
+      } else {
+        toast.success(`${nome} foi removido com sucesso.`)
+      }
+    } catch (error) {
+      toast.error("Erro ao processar a exclusão.")
+    } finally {
+      setLoadingId(null)
+    }
   }
 
   return (
@@ -35,51 +39,55 @@ export function ListaFilhos({ filhos }: { filhos: any[] }) {
       <Table>
         <TableHeader className="bg-slate-50">
           <TableRow>
-            <TableHead>Filho(a)</TableHead>
-            <TableHead className="hidden md:table-cell">E-mail</TableHead>
+            <TableHead className="w-[250px]">Filho(a)</TableHead>
+            <TableHead className="hidden md:table-cell">E-mail de Acesso</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filhos.map((filho) => (
-            <TableRow key={filho.id} className="hover:bg-slate-50/50">
-              <TableCell className="font-medium flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <User size={14} />
-                </div>
-                {filho.full_name}
-              </TableCell>
-              <TableCell className="hidden md:table-cell text-slate-500 text-sm">
-                {filho.email}
-              </TableCell>
-              <TableCell className="text-right">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700 hover:bg-red-50">
-                      <Trash2 size={18} />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Expulsar da casa virtual?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Isso removerá o acesso de <b>{filho.full_name}</b> permanentemente.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={() => handleExcluir(filho.id)}
-                        className="bg-red-500 hover:bg-red-600"
-                      >
-                        Confirmar Remoção
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+          {filhos.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center py-10 text-slate-400 italic">
+                Nenhum filho cadastrado até o momento.
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            filhos.map((filho) => (
+              <TableRow key={filho.id} className="hover:bg-slate-50/50 transition-colors">
+                <TableCell className="font-medium flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <User size={16} />
+                  </div>
+                  <span className="truncate">{filho.full_name || 'Sem nome'}</span>
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-slate-500 text-sm">
+                  {filho.email}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    {/* Componente de Edição */}
+                    <EditarFilho filho={filho} />
+
+                    {/* Botão de Exclusão */}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleExcluir(filho.id, filho.full_name)}
+                      disabled={loadingId === filho.id}
+                      title="Excluir Filho"
+                    >
+                      {loadingId === filho.id ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={18} />
+                      )}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
