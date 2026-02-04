@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
     default: "Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò | Casa de Oxóssi RJ",
-    template: "%s | Ilè Asé Ègbé L'ajò"
+    template: "%s | Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò"
   },
   description: 'Terreiro de Candomblé e Culto aos Orixás em Piedade/Encantado, RJ.',
   manifest: '/manifest.json',
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
     apple: '/icon.png',
     other: { rel: 'apple-touch-icon-precomposed', url: '/icon.png' },
   },
-  authors: [{ name: 'Ilè Asé Ègbé L ajò' }],
-  creator: 'Ilè Asé Ègbé L ajò',
+  authors: [{ name: 'Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò' }],
+  creator: 'Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò',
   openGraph: {
     type: 'website',
     locale: 'pt_BR',

@@ -245,7 +245,7 @@ export default function Home() {
             </p>
             
             <div className="border-t border-border pt-8 text-xs text-muted-foreground">
-                © {new Date().getFullYear()} Ilè Asé Ègbé L'ajò Odé Igbò. Todos os direitos reservados.
+                © {new Date().getFullYear()} Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò. Todos os direitos reservados.
             </div>
 
             <div className="mt-6 flex flex-col items-center gap-3">
