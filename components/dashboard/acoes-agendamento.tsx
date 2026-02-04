@@ -42,7 +42,7 @@ export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProp
             }
 
             // Cria a mensagem focada em PAGAMENTO/CONFIRMAÇÃO
-            const texto = `Olá ${nome || 'Filho de Fé'}! 🕊️\n\nRecebemos sua solicitação de agendamento para *${data}*.\n\nPara confirmar seu horário, precisamos acertar os detalhes do pagamento.\n\nComo prefere prosseguir?`
+            const texto = `Olá ${nome || 'Filho de Fé'}! 🕊️\n\nRecebemos sua solicitação de agendamento para *${data}*.\n\nPosso agendar essa data e horário?\n\nComo prefere prosseguir?`
             
             // Transforma o texto para URL
             const mensagemCodificada = encodeURIComponent(texto)
