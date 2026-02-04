@@ -10,13 +10,13 @@ interface AcoesProps {
   status: string
   telefone?: string
   nome?: string
-  data?: string // Esta data vem do banco de dados
+  data?: string
 }
 
 export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProps) {
   const [loading, setLoading] = useState(false)
 
-  // Formata a data ISO do banco para o padrão brasileiro (DD/MM/AAAA HH:mm)
+  // Formata a data para o padrão brasileiro
   const formatarDataBr = (dataIso?: string) => {
     if (!dataIso) return 'a combinar'
     try {
@@ -33,6 +33,7 @@ export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProp
     }
   }
 
+  // Limpa e formata o número para o padrão internacional
   const formatarWhatsapp = (num: string) => {
     let limpo = num.replace(/\D/g, '')
     if (limpo.length <= 11 && limpo.length > 0) {
@@ -44,19 +45,26 @@ export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProp
   const abrirWhatsapp = (numero: string, mensagem: string) => {
     const texto = encodeURIComponent(mensagem);
     
-    // Protocolo whatsapp:// costuma forçar o celular a perguntar qual app usar (Pessoal ou Business)
-    const urlApp = `whatsapp://send?phone=${numero}&text=${texto}`;
-    const urlWeb = `https://wa.me/${numero}?text=${texto}`;
-
-    // Tenta abrir o protocolo do app primeiro
-    const lancar = window.open(urlApp, '_self');
+    // A API oficial (api.whatsapp.com) é mais reconhecida por disparar o seletor de apps
+    const urlApi = `https://api.whatsapp.com/send?phone=${numero}&text=${texto}`;
     
-    // Fallback caso o protocolo de app falhe ou não seja suportado
-    setTimeout(() => {
-        if (!lancar || lancar.closed) {
-            window.open(urlWeb, '_blank');
+    // Tentativa com protocolo direto para tentar "pular" o navegador se possível
+    const urlProtocolo = `whatsapp://send?phone=${numero}&text=${texto}`;
+
+    // No mobile, tentamos o protocolo direto primeiro
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.location.href = urlProtocolo;
+      
+      // Se em 1 segundo ainda estiver na página, abre a API oficial como fallback
+      setTimeout(() => {
+        if (document.hasFocus()) {
+          window.open(urlApi, '_blank');
         }
-    }, 500);
+      }, 1000);
+    } else {
+      // No Desktop, abre a API oficial direto
+      window.open(urlApi, '_blank');
+    }
   }
 
   const handleStatus = async (novoStatus: 'confirmado' | 'cancelado') => {
@@ -70,7 +78,7 @@ export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProp
         const numeroLimpo = formatarWhatsapp(telefone)
         const dataLeitura = formatarDataBr(data)
         
-        const mensagem = `Olá ${nome || 'Filho de Fé'}! 🕊️\n\nRecebemos sua solicitação de agendamento para o dia *${dataLeitura}*.\n\nPodemos confirmar este horário?`
+        const mensagem = `Olá ${nome || 'Filho de Fé'}! 🕊️\n\nConfirmamos seu agendamento para o dia *${dataLeitura}*.\n\nPodemos prosseguir?`
         
         abrirWhatsapp(numeroLimpo, mensagem)
       }
@@ -91,7 +99,6 @@ export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProp
             className="bg-green-600 hover:bg-green-700 text-white"
             onClick={() => handleStatus('confirmado')}
             disabled={loading}
-            title="Aprovar e avisar cliente"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           </Button>
@@ -101,7 +108,6 @@ export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProp
             variant="destructive"
             onClick={() => handleStatus('cancelado')}
             disabled={loading}
-            title="Recusar agendamento"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
           </Button>
@@ -112,13 +118,12 @@ export function AcoesAgendamento({ id, status, telefone, nome, data }: AcoesProp
         <Button 
           size="sm" 
           variant="outline"
-          className="border-sky-500 text-sky-600 hover:bg-sky-50"
+          className="border-sky-500 text-sky-600"
           onClick={() => {
             const numero = formatarWhatsapp(telefone)
             const dataLeitura = formatarDataBr(data)
-            abrirWhatsapp(numero, `Olá! Gostaria de falar sobre seu agendamento de *${dataLeitura}*.`)
+            abrirWhatsapp(numero, `Olá! Axé. Gostaria de falar sobre o agendamento de *${dataLeitura}*.`)
           }}
-          title="Conversar manualmente"
         >
           <MessageCircle className="h-4 w-4" />
         </Button>
