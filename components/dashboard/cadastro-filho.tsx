@@ -37,7 +37,7 @@ export function CadastroFilho() {
         setOpen(false)
       }
     } catch (error) {
-      toast.error("Erro inesperado ao cadastrar.")
+      toast.error("Ocorreu um erro inesperado.")
     } finally {
       setLoading(false)
     }
@@ -56,12 +56,11 @@ export function CadastroFilho() {
             <UserPlus className="h-6 w-6" /> Novo Filho da Casa
           </DialogTitle>
           <DialogDescription className="text-slate-500">
-            Preencha os dados abaixo para criar o acesso.
+            Preencha os dados abaixo para criar o acesso ao sistema.
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nome */}
           <div className="space-y-2">
             <Label htmlFor="nome" className="text-slate-700 font-medium">Nome do Filho (Axé)</Label>
             <div className="relative">
@@ -76,7 +75,6 @@ export function CadastroFilho() {
             </div>
           </div>
 
-          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-slate-700 font-medium">Email de Acesso</Label>
             <div className="relative">
@@ -92,7 +90,6 @@ export function CadastroFilho() {
             </div>
           </div>
 
-          {/* Senha */}
           <div className="space-y-2">
             <Label htmlFor="senha" className="text-slate-700 font-medium">Senha Inicial</Label>
             <div className="relative">
