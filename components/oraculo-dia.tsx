@@ -32,7 +32,7 @@ export async function OraculoDia() {
                 </div>
                 <CardTitle className="text-secondary text-xl">Aguardando Mensagem</CardTitle>
                 <CardDescription className="text-sky-100 max-w-xs mx-auto mt-2">
-                    O Pai de Santo publicará a orientação da semana em breve.
+                    O Bàbá Edson publicará a orientação da semana em breve.
                 </CardDescription>
             </CardHeader>
         </Card>

@@ -62,7 +62,7 @@ export default function Home() {
             Tradição • Fé • Ancestralidade
           </Badge>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6 leading-tight text-white drop-shadow-lg">
-            Ilè Asé Ègbé L'ajò Odé Igbò
+            Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò
           </h1>
           <p className="text-lg md:text-xl text-sky-100 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
             Seja bem-vindo ao nosso espaço sagrado. <br/>

@@ -58,7 +58,7 @@ export default async function DashboardPage() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-sky-100 hidden md:block">
-              {perfil?.full_name || user.email} ({isAdmin ? 'Pai de Santo' : 'Filho'})
+              {perfil?.full_name || user.email} ({isAdmin ? 'Bàbá' : 'Filho'})
             </span>
             <div className="flex gap-2">
                 <BotaoAlterarSenha />

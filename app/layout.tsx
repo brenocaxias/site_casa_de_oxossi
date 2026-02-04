@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Ilè Asé Ègbé L'ajò Odé Igbò | Casa de Oxóssi RJ",
+    default: "Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò | Casa de Oxóssi RJ",
     template: "%s | Ilè Asé Ègbé L'ajò"
   },
   description: 'Terreiro de Candomblé e Culto aos Orixás em Piedade/Encantado, RJ.',
