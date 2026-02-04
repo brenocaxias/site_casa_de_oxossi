@@ -13,7 +13,7 @@ export default function Home() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'PlaceOfWorship',
-    name: "Ilè Asé Ègbé L'ajò Odé Igbò",
+    name: "Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò",
     alternateName: "Casa de Oxóssi Piedade",
     image: 'https://www.egbelajo-odeigbo.com.br/logo-header.png',
     description: 'Casa de Candomblé e culto aos orixás em Piedade, Rio de Janeiro. Agende Jogo de Búzios e trabalhos espirituais.',

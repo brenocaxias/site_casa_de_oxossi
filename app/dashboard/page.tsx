@@ -82,7 +82,7 @@ export default async function DashboardPage() {
                     value="admin" 
                     className="min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-white font-bold"
                 >
-                    Painel do Pai de Santo
+                    Painel do Bàbá
                 </TabsTrigger>
             )}
             <TabsTrigger 

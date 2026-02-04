@@ -50,12 +50,10 @@ export async function cadastrarFilho(formData: FormData) {
     let userId: string | undefined;
 
     if (authError) {
-      // Se o erro for de usuário já registrado, buscamos o ID dele
       if (authError.message.includes("already been registered")) {
         const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
         const existingUser = listData.users.find(u => u.email === email);
-        
-        if (!existingUser) return { error: "Usuário já existe no Auth, mas não foi encontrado na lista." };
+        if (!existingUser) return { error: "Usuário já existe, mas erro ao recuperar ID." };
         userId = existingUser.id;
       } else {
         throw authError;
@@ -64,17 +62,16 @@ export async function cadastrarFilho(formData: FormData) {
       userId = authData.user?.id;
     }
     
-    if (!userId) throw new Error("Não foi possível determinar o ID do usuário.");
+    if (!userId) throw new Error("ID do usuário não encontrado.");
 
-    // 2. Usar UPSERT na tabela 'profiles' para evitar erro de chave duplicada (Pkey)
+    // 2. Usar UPSERT apenas com colunas confirmadas (id, full_name, email, role)
     const { error: dbError } = await supabaseAdmin
       .from('profiles')
       .upsert({
         id: userId,
         full_name: nome,
         email: email,
-        role: 'filho',
-        updated_at: new Date().toISOString(),
+        role: 'filho'
       }, { onConflict: 'id' });
 
     if (dbError) {
