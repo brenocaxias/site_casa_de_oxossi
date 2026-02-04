@@ -37,7 +37,7 @@ export function CadastroFilho() {
         setOpen(false)
       }
     } catch (error) {
-      toast.error("Ocorreu um erro inesperado.")
+      toast.error("Ocorreu um erro inesperado ao cadastrar.")
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ export function CadastroFilho() {
             <UserPlus className="h-6 w-6" /> Novo Filho da Casa
           </DialogTitle>
           <DialogDescription className="text-slate-500">
-            Preencha os dados abaixo para criar o acesso ao sistema.
+            Crie o acesso do novo filho preenchendo os dados abaixo.
           </DialogDescription>
         </DialogHeader>
         
@@ -70,7 +70,7 @@ export function CadastroFilho() {
                 name="nome" 
                 placeholder="Ex: João de Ogum" 
                 required 
-                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary"
+                className="pl-9 bg-slate-50 border-slate-300"
               />
             </div>
           </div>
@@ -85,7 +85,7 @@ export function CadastroFilho() {
                 type="email" 
                 placeholder="exemplo@email.com" 
                 required 
-                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary"
+                className="pl-9 bg-slate-50 border-slate-300"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@ export function CadastroFilho() {
                 type="text" 
                 placeholder="Mínimo 6 caracteres" 
                 required 
-                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary"
+                className="pl-9 bg-slate-50 border-slate-300"
               />
             </div>
           </div>
