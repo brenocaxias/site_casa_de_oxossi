@@ -31,9 +31,13 @@ export async function atualizarPerfil(formData: FormData) {
     })
     .eq('id', user.id)
 
-  if (error) return { error: "Erro ao atualizar banco de dados" }
+  if (error) {
+    console.error("Erro Supabase:", error.message)
+    return { error: "Erro ao salvar: " + error.message }
+  }
 
+  revalidatePath('/', 'layout') 
   revalidatePath('/dashboard')
-  revalidatePath('/dashboard/perfil')
+  
   return { success: true }
 }

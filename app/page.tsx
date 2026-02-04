@@ -153,7 +153,7 @@ export default function Home() {
                     <div className="flex items-center gap-2">
                         <Instagram className="h-6 w-6" />
                         <div className="flex flex-col">
-                            <CardTitle className="text-base font-bold leading-none">Ilè Asé Ègbé L'ajò Odé Igbò</CardTitle>
+                            <CardTitle className="text-base font-bold leading-none">Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò</CardTitle>
                             <CardDescription className="text-sky-100 text-xs mt-1 leading-none">@egbelajo_odeigbo</CardDescription>
                         </div>
                     </div>
@@ -238,7 +238,7 @@ export default function Home() {
                    />
                 </div>
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">Ilè Asé Ègbé L'ajò Odé Igbò</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">Ilè Àṣẹ Ẹgbẹ́ Làjọ Odé Igbò</h3>
             
             <p className="mb-6 text-sm opacity-80 max-w-md mx-auto">
                 Casa de Culto aos Orixás.
