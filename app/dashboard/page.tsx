@@ -35,6 +35,9 @@ export default async function DashboardPage() {
 
   const isAdmin = perfil?.role === 'admin';
 
+  // LÓGICA DE NOME: Tenta perfil do banco, depois metadata do auth, depois email, depois fallback
+  const nomeExibicao = perfil?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Filho de Fé';
+
   // BUSCA TUDO AO MESMO TEMPO
   const [meusAgendamentosRes, arquivosRes, todosAgendamentosRes, todosArtigosRes] = await Promise.all([
     supabase.from('agendamentos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
@@ -57,9 +60,10 @@ export default async function DashboardPage() {
             <ShieldAlert className="text-secondary" /> Área Restrita
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-sky-100 hidden md:block">
-              {perfil?.full_name || user.email} ({isAdmin ? 'Bàbá' : 'Filho'})
-            </span>
+            <div className="text-right hidden md:block">
+                <p className="text-sm font-bold leading-none">{nomeExibicao}</p>
+                <p className="text-[10px] text-sky-100 opacity-80">{isAdmin ? 'Bàbá da Casa' : 'Filho de Santo'}</p>
+            </div>
             <div className="flex gap-2">
                 <BotaoAlterarSenha />
                 <SignOutButton />
@@ -70,7 +74,7 @@ export default async function DashboardPage() {
 
       <main className="container mx-auto px-4 py-8 flex-1 overflow-x-hidden">
         <h1 className="text-3xl font-bold text-slate-800 mb-2">
-            Bem-vindo, <span className="text-primary">{perfil?.full_name || 'Filho de Fé'}</span>.
+            Bem-vindo, <span className="text-primary">{nomeExibicao}</span>.
         </h1>
         <p className="text-slate-600 mb-8">Esta é a secretaria virtual da nossa casa.</p>
 
@@ -153,7 +157,7 @@ export default async function DashboardPage() {
                                         `}>
                                             {item.status}
                                         </Badge>
-                                        <AcoesAgendamento id={item.id} status={item.status} telefone={item.cliente_contato} nome={item.cliente_nome} data={formatDate(item.data_agendamento)}/>
+                                        <AcoesAgendamento id={item.id} status={item.status} telefone={item.cliente_contato} nome={item.cliente_nome} data={item.data_agendamento}/>
                                     </div>
                                 </div>
                             ))}
@@ -169,18 +173,18 @@ export default async function DashboardPage() {
            )}
 
           <TabsContent value="arquivos" className="animate-in fade-in slide-in-from-bottom-2">
-             <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+              <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                 <div>
                     <h3 className="text-lg font-bold text-slate-800">Material de Estudo e Fotos</h3>
                     <p className="text-sm text-slate-500">Documentos compartilhados pela administração.</p>
                 </div>
                 {isAdmin && <UploadArquivo />}
-             </div>
-             {(!arquivosReais || arquivosReais.length === 0) ? (
-                 <div className="text-center py-20 text-slate-400 bg-white border border-dashed border-slate-300 rounded-lg">
+              </div>
+              {(!arquivosReais || arquivosReais.length === 0) ? (
+                  <div className="text-center py-20 text-slate-400 bg-white border border-dashed border-slate-300 rounded-lg">
                     <Folder className="mx-auto h-12 w-12 mb-4 opacity-50 text-primary" />
                     <p>Ainda não há arquivos compartilhados.</p>
-                 </div>
+                  </div>
             ) : (
                 <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
                   {arquivosReais.map((arquivo: any) => (
@@ -214,11 +218,11 @@ export default async function DashboardPage() {
                 <NovoAgendamento userId={user.id} />
             </div>
             {(!meusAgendamentos || meusAgendamentos.length === 0) ? (
-                 <div className="text-center py-16 text-slate-500 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50/50">
+                  <div className="text-center py-16 text-slate-500 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50/50">
                     <Calendar className="mx-auto h-12 w-12 mb-3 text-slate-300" />
                     <p>Você ainda não tem agendamentos registrados.</p>
                     <p className="text-xs mt-2 text-slate-400">Clique em "Novo Agendamento" para começar.</p>
-                 </div>
+                  </div>
             ) : (
                 <div className="grid gap-4">
                     {meusAgendamentos.map((item: any) => (
