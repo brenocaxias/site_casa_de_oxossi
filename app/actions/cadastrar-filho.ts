@@ -22,14 +22,11 @@ export async function cadastrarFilho(formData: FormData) {
   const validacao = schemaCadastro.safeParse(rawData);
 
   if (!validacao.success) {
-    return { 
-      error: validacao.error.issues[0].message 
-    };
+    return { error: validacao.error.issues[0].message };
   }
 
   const { email, senha, nome, telefone } = validacao.data;
 
-  // Cliente Admin usando Service Role Key
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!, 
@@ -42,7 +39,7 @@ export async function cadastrarFilho(formData: FormData) {
   );
 
   try {
-    // 1. Criar usuário no Authentication
+    // 1. Tentar criar o usuário no Auth
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: senha,
@@ -50,30 +47,39 @@ export async function cadastrarFilho(formData: FormData) {
       user_metadata: { full_name: nome }
     });
 
+    let userId: string | undefined;
+
     if (authError) {
+      // Se o erro for de usuário já registrado, buscamos o ID dele
       if (authError.message.includes("already been registered")) {
-         return { error: "Este e-mail já está cadastrado no sistema." };
+        const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+        const existingUser = listData.users.find(u => u.email === email);
+        
+        if (!existingUser) return { error: "Usuário já existe no Auth, mas não foi encontrado na lista." };
+        userId = existingUser.id;
+      } else {
+        throw authError;
       }
-      throw authError;
+    } else {
+      userId = authData.user?.id;
     }
     
-    if (!authData.user) throw new Error("Erro ao criar usuário.");
+    if (!userId) throw new Error("Não foi possível determinar o ID do usuário.");
 
-    // 2. Criar perfil na tabela 'profiles' (conforme usado no Dashboard)
+    // 2. Usar UPSERT na tabela 'profiles' para evitar erro de chave duplicada (Pkey)
     const { error: dbError } = await supabaseAdmin
       .from('profiles')
-      .insert({
-        id: authData.user.id,
-        full_name: nome, // Usando full_name para bater com o Dashboard
+      .upsert({
+        id: userId,
+        full_name: nome,
         email: email,
-        role: 'filho',   // Define como filho por padrão
-        // Se houver coluna telefone/data_cadastro no seu banco, adicione abaixo:
-        // telefone: telefone,
-      });
+        role: 'filho',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
 
     if (dbError) {
       console.error("Erro no banco:", dbError);
-      return { error: `Usuário criado, mas erro ao salvar na tabela 'profiles': ${dbError.message}` };
+      return { error: `Erro ao salvar perfil: ${dbError.message}` };
     }
 
     revalidatePath('/dashboard');
