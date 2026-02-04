@@ -7,7 +7,7 @@ const schemaCadastro = z.object({
   email: z.string().email("E-mail inválido."),
   senha: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
   nome: z.string().min(3, "O nome deve ter no mínimo 3 caracteres."),
-  telefone: z.string().optional(),
+  telefone: z.string().nullable().optional(), // ADICIONE O .nullable() AQUI
 });
 
 export async function cadastrarFilho(formData: FormData) {

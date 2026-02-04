@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { UserPlus, Loader2, Mail, Lock, User as UserIcon } from 'lucide-react'
 import { cadastrarFilho } from '@/app/actions/cadastrar-filho'
+import { toast } from "sonner" // Usando o toast que já existe no seu projeto
 
 export function CadastroFilho() {
   const [open, setOpen] = useState(false)
@@ -30,10 +31,11 @@ export function CadastroFilho() {
     setLoading(false)
 
     if (res?.error) {
-      alert(res.error)
+      toast.error(res.error) // Exibe o erro retornado pela Action
     } else {
-      alert('Filho de santo cadastrado com sucesso!')
+      toast.success('Filho de santo cadastrado com sucesso!')
       setOpen(false)
+      // Opcional: e.currentTarget.reset() para limpar o form
     }
   }
 
@@ -50,7 +52,7 @@ export function CadastroFilho() {
             <UserPlus className="h-6 w-6" /> Novo Filho da Casa
           </DialogTitle>
           <DialogDescription className="text-slate-500">
-            Preencha os dados abaixo para criar o acesso do filho de santo ao sistema.
+            Crie o acesso do filho de santo apenas com os dados essenciais.
           </DialogDescription>
         </DialogHeader>
         
@@ -64,7 +66,7 @@ export function CadastroFilho() {
                 name="nome" 
                 placeholder="Ex: João de Ogum" 
                 required 
-                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary focus:ring-primary/20"
+                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary"
               />
             </div>
           </div>
@@ -77,9 +79,9 @@ export function CadastroFilho() {
                 id="email" 
                 name="email" 
                 type="email" 
-                placeholder="joao@email.com" 
+                placeholder="exemplo@email.com" 
                 required 
-                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary focus:ring-primary/20"
+                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary"
               />
             </div>
           </div>
@@ -94,24 +96,17 @@ export function CadastroFilho() {
                 type="text" 
                 placeholder="Mínimo 6 caracteres" 
                 required 
-                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary focus:ring-primary/20"
+                className="pl-9 bg-slate-50 border-slate-300 focus:border-primary"
               />
             </div>
-            <p className="text-xs text-slate-500 ml-1">Recomendamos que o usuário troque a senha no primeiro acesso.</p>
           </div>
 
           <DialogFooter className="pt-4 border-t mt-6">
-             <Button type="button" variant="outline" onClick={() => setOpen(false)} className="mr-auto">
-                Cancelar
-             </Button>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="mr-auto">
+              Cancelar
+            </Button>
             <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90 text-white font-semibold min-w-[140px]">
-              {loading ? (
-                 <>
-                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Criando...
-                 </>
-              ) : (
-                 'Criar Cadastro'
-              )}
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Criar Cadastro'}
             </Button>
           </DialogFooter>
         </form>
