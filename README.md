@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏹 Secretaria Virtual - Casa de Oxóssi
 
-## Getting Started
+Sistema de gestão interna para terreiros de Umbanda e Candomblé, desenvolvido para organizar a comunicação entre o corpo mediúnico (filhos de santo) e a administração da casa (Bàbá/Admin).
 
-First, run the development server:
+## ✨ Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 👤 Área do Filho de Santo
+* **Perfil Personalizado:** Gestão de nome de axé e dados de contato.
+* **Agendamentos:** Solicitação de consultas (Búzios/Orientação) e acompanhamento de status em tempo real.
+* **Acervo Digital:** Acesso a materiais de estudo, pontos riscados, áudios e fotos compartilhadas.
+* **Segurança:** Alteração de senha e autenticação individual.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 👑 Painel do Bàbá (Admin)
+* **Gestão de Membros:** Cadastro, edição completa e exclusão de filhos de santo via cliente administrativo.
+* **Controle de Agendamentos:** Aprovação, cancelamento e histórico de todos os atendimentos da casa.
+* **Secretaria:** Upload de arquivos para a biblioteca comum.
+* **Mural de Avisos:** Publicação de artigos e orientações no dashboard principal.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Tecnologias
 
-## Learn More
+* **Framework:** [Next.js 14 (App Router)](https://nextjs.org/)
+* **Banco de Dados & Auth:** [Supabase](https://supabase.com/)
+* **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+* **Componentes:** [Shadcn/UI](https://ui.shadcn.com/)
+* **Ícones:** [Lucide React](https://lucide.dev/)
+* **Notificações:** [Sonner](https://sonner.emilkowal.ski/)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Configuração do Ambiente
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/seu-usuario/casa-de-oxossi.git](https://github.com/seu-usuario/casa-de-oxossi.git)
