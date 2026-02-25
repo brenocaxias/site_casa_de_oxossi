@@ -26,7 +26,8 @@ const formatDate = (dateString: string) => {
         day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'
     });
 };
-
+export const dynamic = 'force-dynamic'; // Força a página a ser renderizada do zero em cada acesso
+export const revalidate = 0;
 export default async function DashboardPage() {
   const supabase = await createServerSideClient();
   const { data: { user } } = await supabase.auth.getUser();
